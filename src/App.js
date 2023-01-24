@@ -786,7 +786,7 @@ if (sourceVerse) {
 let words = [];
 
 if (sourceVerse) {
-  words =.getLabeledTargetTokens(targetTokens, alignedTokens);
+  words = getLabeledTargetTokens(targetTokens, alignedTokens);
 }
 
 
