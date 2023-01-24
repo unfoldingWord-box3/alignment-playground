@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { DropTarget } from 'react-dnd';
+// import { DropTarget } from 'react-dnd';
 import { Token } from 'wordmap-lexer';
 import * as types from '../../common/WordCardTypes';
 import WordList from './WordList';
