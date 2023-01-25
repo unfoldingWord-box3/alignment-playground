@@ -223,7 +223,7 @@ export const sourceVerse = {
     }
   ]
 };
-export const alignments = [
+export const verseAlignments = [
   {
     "sourceNgram": [
       {
@@ -238,6 +238,7 @@ export const alignments = [
       }
     ],
     "targetNgram": [
+      // TODO: re-enable - disabled for testing
       // {
       //   "text": "Paul",
       //   "occurrence": 1,

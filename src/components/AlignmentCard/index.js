@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { DropTarget } from 'react-dnd';
 import { Token } from 'wordmap-lexer';
 import * as types from '../../common/WordCardTypes';
 import SecondaryToken from '../SecondaryToken';
@@ -116,7 +115,6 @@ class DroppableAlignmentCard extends Component {
       sourceDirection,
       targetDirection,
       isSuggestion,
-      connectDropTarget,
       isHebrew,
       showPopover,
       getLexiconData,
@@ -165,7 +163,7 @@ class DroppableAlignmentCard extends Component {
     if (emptyAlignment && !canDrop) {
       return <div style={styles.root.closed}/>;
     } else {
-      return connectDropTarget(
+      return (
         <div>
           <AlignmentCard targetTokenCards={bottomWordCards}
             targetDirection={targetDirection}
@@ -175,7 +173,7 @@ class DroppableAlignmentCard extends Component {
             acceptsTargetTokens={acceptsBottom}
             acceptsSourceTokens={acceptsTop}
             sourceTokenCards={topWordCards}/>
-        </div>,
+        </div>
       );
     }
   }
@@ -191,7 +189,6 @@ DroppableAlignmentCard.propTypes = {
   dragItemType: PropTypes.string,
   isOver: PropTypes.bool.isRequired,
   canDrop: PropTypes.bool.isRequired,
-  connectDropTarget: PropTypes.func.isRequired,
   sourceNgram: PropTypes.arrayOf(PropTypes.instanceOf(Token)).isRequired,
   targetNgram: PropTypes.arrayOf(PropTypes.instanceOf(Token)).isRequired,
   alignmentIndex: PropTypes.number.isRequired,
@@ -240,18 +237,4 @@ const dragHandler = {
   },
 };
 
-const collect = (connect, monitor) => {
-  const item = monitor.getItem();
-  return {
-    connectDropTarget: connect.dropTarget(),
-    dragItemType: item ? item.type : null,
-    isOver: monitor.isOver(),
-    canDrop: monitor.canDrop(),
-  };
-};
-
-export default DropTarget(
-  [types.SECONDARY_WORD, types.PRIMARY_WORD],
-  dragHandler,
-  collect,
-)(DroppableAlignmentCard);
+export default DroppableAlignmentCard;

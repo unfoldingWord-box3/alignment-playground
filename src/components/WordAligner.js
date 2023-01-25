@@ -223,7 +223,6 @@ export class WordAligner extends Component {
       setToolSettings,
       resourcesReducer,
       loadLexiconEntry,
-      connectDropTarget,
       sourceDirection,
       sourceLanguage,
       targetDirection,
@@ -281,7 +280,6 @@ export class WordAligner extends Component {
             toolsSettings={toolsSettings}
             reset={this.state.resetWordList}
             setToolSettings={setToolSettings}
-            connectDropTarget={connectDropTarget}
             targetLanguageFont={targetLanguageFont}
             onDropTargetToken={this.handleUnalignTargetToken}
           />
@@ -364,7 +362,6 @@ WordAligner.propTypes = {
 
   // drag props
   isOver: PropTypes.bool,
-  connectDropTarget: PropTypes.func,
 
   // tc actions
   showPopover: PropTypes.func.isRequired,

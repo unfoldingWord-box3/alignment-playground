@@ -61,12 +61,10 @@ class SecondaryToken extends React.Component {
   handleClick(e) {
     e.stopPropagation();
     const {
-      token, onAccept, onClick,
+      token, onClick,
     } = this.props;
 
-    if (token.meta.suggestion) {
-      onAccept(token);
-    } else if (!token.disabled && onClick) {
+    if (!token.disabled && onClick) {
       const buttonDiv = e.currentTarget.getElementsByTagName('DIV')[0].getElementsByTagName('DIV')[0];
       buttonDiv.style.cursor = 'wait';
       setTimeout(() => {
@@ -168,7 +166,6 @@ class SecondaryToken extends React.Component {
           onCancel={this.handleCancel}
           occurrence={token.occurrence}
           occurrences={token.occurrences}
-          isSuggestion={token.meta.suggestion}
           targetLanguageFontClassName={targetLanguageFontClassName}
         />
       </div>

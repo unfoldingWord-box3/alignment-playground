@@ -3,8 +3,10 @@ import './App.css';
 import Lexer from "wordmap-lexer";
 import {removeUsfmMarkers} from "./utils/usfmHelpers";
 import {tokenizeVerseObjects} from "./utils/verseObjects";
-import {targetVerseText, sourceVerse, alignments} from './data/tit_1_1_alignment';
+import {targetVerseText, sourceVerse, verseAlignments} from './data/tit_1_1_alignment';
 import WordList from './components/WordList/index';
+import AlignmentGrid from "./components/AlignmentGrid";
+import {NT_ORIG_LANG, OT_ORIG_LANG} from "./common/constants";
 
 const styles = {
   container: {
@@ -12,7 +14,7 @@ const styles = {
     flexDirection: 'row',
     // width: '100vw',
     // height: '100%',
-    width: '500px',
+    width: '800px',
     height: '500px',
     fontSize: '14px',
   },
@@ -21,7 +23,7 @@ const styles = {
     height: '100%',
   },
   wordListContainer: {
-    minWidth: '100px',
+    minWidth: '150px',
     maxWidth: '400px',
     height: '100%',
     display: 'flex',
@@ -55,6 +57,7 @@ const styles = {
   },
 };
 
+const translate = (key) => {console.log(`translate(${key})`)};
 const verse = '1', chapter = '1';
 let targetTokens = [];
 let sourceTokens = [];
@@ -71,7 +74,7 @@ if (sourceVerse) {
 let wordListWords = [];
 
 if (sourceVerse) {
-  wordListWords = getLabeledTargetTokens(targetTokens, alignments);
+  wordListWords = getLabeledTargetTokens(targetTokens, verseAlignments);
   // for (let i = 0, l = wordListWords.length; i < l; i++) {
   //   wordListWords[i].disabled = !! (i % 2);
   // }
@@ -105,21 +108,63 @@ const App = () => {
 
   const over = false;
   const targetDirection = 'ltr';
+  const sourceDirection = 'ltr';
   const toolsSettings = {};
-  const setToolSettings = () => { console.log('setToolSettings')};
-  const connectDropTarget = () => { console.log('connectDropTarget')};
-  const handleUnalignTargetToken = () => { console.log('handleUnalignTargetToken')};
+  const setToolSettings = () => {
+    console.log('setToolSettings')
+  };
+  const connectDropTarget = () => {
+    console.log('connectDropTarget')
+  };
+  const handleUnalignTargetToken = () => {
+    console.log('handleUnalignTargetToken')
+  };
+  const handleAlignTargetToken = () => {
+    console.log('handleAlignTargetToken')
+  };
+  const handleAlignPrimaryToken = () => {
+    console.log('handleAlignPrimaryToken')
+  };
+  const handleRemoveSuggestion = () => {
+    console.log('handleRemoveSuggestion')
+  };
+  const handleAcceptTokenSuggestion = () => {
+    console.log('handleAcceptTokenSuggestion')
+  };
   const targetLanguageFont = '';
   const resetWordList = false;
+  const sourceLanguage = NT_ORIG_LANG;
+  const lexicons = {};
+  const contextId = {
+    "reference": {
+      "bookId": "tit",
+      "chapter": 1,
+      "verse": 1
+    },
+    "tool": "wordAlignment",
+    "groupId": "chapter_1"
+  };
+  const showPopover = (key) => {console.log(`showPopover(${key})`)};
+  const loadLexiconEntry = (key) => {console.log(`loadLexiconEntry(${key})`)};
+  
+  // TRICKY: make hebrew text larger
+  let sourceStyle = { fontSize: '100%' };
+  const isHebrew = sourceLanguage === OT_ORIG_LANG;
+
+  if (isHebrew) {
+    sourceStyle = {
+      fontSize: '175%', paddingTop: '2px', paddingBottom: '2px', lineHeight: 'normal', WebkitFontSmoothing: 'antialiased',
+    };
+  }
 
   return (
     <div style={styles.container}>
       <div style={styles.wordListContainer}>
         <WordList
           words={wordListWords}
-          verse={verse}
+          verse={contextId.reference.verse}
           isOver={over}
-          chapter={chapter}
+          chapter={contextId.reference.chapter}
           direction={targetDirection}
           toolsSettings={toolsSettings}
           reset={resetWordList}
@@ -129,6 +174,29 @@ const App = () => {
           onDropTargetToken={handleUnalignTargetToken}
         />
       </div>
+      {sourceVerse ? (
+        <AlignmentGrid
+          sourceStyle={sourceStyle}
+          sourceDirection={sourceDirection}
+          targetDirection={targetDirection}
+          alignments={verseAlignments}
+          translate={translate}
+          lexicons={lexicons}
+          toolsSettings={toolsSettings}
+          onDropTargetToken={handleAlignTargetToken}
+          onDropSourceToken={handleAlignPrimaryToken}
+          onCancelSuggestion={handleRemoveSuggestion}
+          onAcceptTokenSuggestion={handleAcceptTokenSuggestion}
+          contextId={contextId}
+          isHebrew={isHebrew}
+          showPopover={showPopover}
+          loadLexiconEntry={loadLexiconEntry}
+          targetLanguageFont={targetLanguageFont}
+        />
+      ) : (
+        'MissingBibleError'
+      )}
+
     </div>
 
   // <>

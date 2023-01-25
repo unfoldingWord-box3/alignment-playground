@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { DragSource } from 'react-dnd';
-import { WordLexiconDetails, lexiconHelpers } from 'tc-ui-toolkit';
+import { default as WordLexiconDetails } from 'tc-ui-toolkit/lib/WordLexiconDetails/index';
+import * as lexiconHelpers from 'tc-ui-toolkit/lib/ScripturePane/helpers/lexiconHelpers';
 import { Token } from 'wordmap-lexer';
 import * as types from '../common/WordCardTypes';
 // components
@@ -67,13 +67,12 @@ class PrimaryToken extends Component {
       isHebrew,
       direction,
       isDragging,
-      dragPreview,
       connectDragSource,
     } = this.props;
     const { hover } = this.state;
 
     const disabled = (isDragging || hover) && !canDrag;
-    const word = dragPreview(
+    const word = (
       <div>
         <Word
           word={token.text}
@@ -177,14 +176,4 @@ const dragHandler = {
   },
 };
 
-const collect = (connect, monitor) => ({
-  connectDragSource: connect.dragSource(),
-  dragPreview: connect.dragPreview({ captureDraggingState: false }),
-  isDragging: monitor.isDragging(),
-});
-
-export default DragSource(
-  types.PRIMARY_WORD,
-  dragHandler,
-  collect
-)(PrimaryToken);
+export default PrimaryToken;
