@@ -151,13 +151,14 @@ class WordCard extends React.Component {
       // isSuggestion,
       // disableTooltip,
       targetLanguageFontClassName,
+      disabled,
     } = this.props;
     const styles = makeStyles(this.props);
     // const { tooltip } = this.state;
     return (
       <React.Fragment>
         {/*<ThemedTooltip message={word} disabled={!tooltip || disableTooltip} fontScale={fontScale} targetLanguageFontClassName={targetLanguageFontClassName}>*/}
-          <div style={{ flex: 1 }} onMouseEnter={this.handleMouseEnter} onMouseLeave={this.handleMouseLeave}>
+          <div style={{ flex: 1 }} onMouseEnter={this.handleMouseEnter} onMouseLeave={this.handleMouseLeave} draggable={!disabled}>
             <div style={styles.root}>
               <span style={{
                 flex: 1, display: 'flex', overflow: 'hidden',

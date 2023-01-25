@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Token } from 'wordmap-lexer';
 import SecondaryToken from '../SecondaryToken';
 import { getFontClassName } from '../../common/fontUtils';
-import ThreeDotMenu from '../ThreeDotMenu';
+// import ThreeDotMenu from '../ThreeDotMenu';
 
 /**
  * Renders a list of words that need to be aligned.
@@ -98,20 +98,20 @@ class WordList extends React.Component {
             <div style={{
               display: 'flex', justifyContent: 'flex-end', padding: '0px 5px 5px',
             }}>
-              <ThreeDotMenu
-                isRtl={isRtl}
-                anchorOrigin={{
-                  vertical: 'bottom',
-                  horizontal: 'left',
-                }}
-                transformOrigin={{
-                  vertical: 'top',
-                  horizontal: isRtl ? 'right' : 'left',
-                }}
-                namespace='WordList'
-                toolsSettings={toolsSettings}
-                setToolSettings={setToolSettings}
-              />
+              {/*<ThreeDotMenu*/}
+              {/*  isRtl={isRtl}*/}
+              {/*  anchorOrigin={{*/}
+              {/*    vertical: 'bottom',*/}
+              {/*    horizontal: 'left',*/}
+              {/*  }}*/}
+              {/*  transformOrigin={{*/}
+              {/*    vertical: 'top',*/}
+              {/*    horizontal: isRtl ? 'right' : 'left',*/}
+              {/*  }}*/}
+              {/*  namespace='WordList'*/}
+              {/*  toolsSettings={toolsSettings}*/}
+              {/*  setToolSettings={setToolSettings}*/}
+              {/*/>*/}
             </div>
             {words.map((token, index) => (
               <div

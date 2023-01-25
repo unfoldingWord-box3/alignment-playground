@@ -120,7 +120,7 @@ class DroppableWordList extends React.Component {
       direction,
       toolsSettings,
       setToolSettings,
-      connectDropTarget,
+      // connectDropTarget,
       targetLanguageFont,
     } = this.props;
     const { selectedWords, selectedWordPositions } = this.state;
@@ -138,7 +138,7 @@ class DroppableWordList extends React.Component {
       wordListStyle.fontSize = `${fontSize}%`;
     }
 
-    return connectDropTarget(
+    return (
       <div id='wordList' style={wordListStyle}>
         <WordList
           toolSettings={toolsSettings['WordList']}
@@ -155,7 +155,7 @@ class DroppableWordList extends React.Component {
           onWordDragged={this.clearWordSelections}
           selectedWordPositions={selectedWordPositions}
         />
-      </div>,
+      </div>
     );
   }
 }
@@ -199,8 +199,4 @@ const collect = (connect, monitor) => ({
   canDrop: monitor.canDrop(),
 });
 
-export default DropTarget(
-  types.SECONDARY_WORD,
-  dragHandler,
-  collect,
-)(DroppableWordList);
+export default DroppableWordList;

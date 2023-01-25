@@ -87,7 +87,7 @@ class PrimaryToken extends Component {
         />
       </div>
     );
-    return connectDragSource(
+    return (
       <div style={{ flex: 1, position: 'relative' }}
         onClick={this._handleClick}
         onMouseOver={this._handleOver}

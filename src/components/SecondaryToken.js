@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { DragSource } from 'react-dnd';
 import { Token } from 'wordmap-lexer';
 // load drag preview images
 import multi_drag_preview_2 from '../assets/multi_drag_preview_2.png';
@@ -178,7 +177,8 @@ class SecondaryToken extends React.Component {
     if (disabled) {
       return wordComponent;
     } else {
-      return connectDragSource(wordComponent);
+      // return connectDragSource(wordComponent);
+      return wordComponent;
     }
   }
 }
@@ -273,8 +273,4 @@ const collect = (connect, monitor) => ({
   connectDragPreview: connect.dragPreview(),
 });
 
-export default DragSource(
-  types.SECONDARY_WORD,
-  dragHandler,
-  collect,
-)(SecondaryToken);
+export default SecondaryToken;
