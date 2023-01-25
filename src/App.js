@@ -1,9 +1,9 @@
-import React, { useState, useRef } from 'react';
+import React from 'react';
 import './App.css';
 import Lexer from "wordmap-lexer";
 import {removeUsfmMarkers} from "./utils/usfmHelpers";
 import {tokenizeVerseObjects} from "./utils/verseObjects";
-import {targetVerseText, sourceVerse, alignedTokens} from './data/tit_1_1_alignment';
+import {targetVerseText, sourceVerse, alignments} from './data/tit_1_1_alignment';
 import WordList from './components/WordList/index';
 
 const styles = {
@@ -14,6 +14,7 @@ const styles = {
     // height: '100%',
     width: '500px',
     height: '500px',
+    fontSize: '14px',
   },
   groupMenuContainer: {
     width: '250px',
@@ -67,10 +68,13 @@ if (sourceVerse) {
 }
 
 // TRICKY: do not show word list if there is no source bible.
-let words = [];
+let wordListWords = [];
 
 if (sourceVerse) {
-  words = getLabeledTargetTokens(targetTokens, alignedTokens);
+  wordListWords = getLabeledTargetTokens(targetTokens, alignments);
+  // for (let i = 0, l = wordListWords.length; i < l; i++) {
+  //   wordListWords[i].disabled = !! (i % 2);
+  // }
 }
 
 const App = () => {
@@ -112,7 +116,7 @@ const App = () => {
     <div style={styles.container}>
       <div style={styles.wordListContainer}>
         <WordList
-          words={words}
+          words={wordListWords}
           verse={verse}
           isOver={over}
           chapter={chapter}
@@ -146,15 +150,20 @@ const App = () => {
   );
 };
 
-function  getLabeledTargetTokens(targetTokens, alignedTokens) {
+function  getLabeledTargetTokens(targetTokens, alignments) {
   return targetTokens.map(token => {
     let isUsed = false;
 
-    for (const usedToken of alignedTokens) {
-      if (token.toString() === usedToken.toString()
-        && token.occurrence === usedToken.occurrence
-        && token.occurrences === usedToken.occurrences) {
-        isUsed = true;
+    for (const alignment of alignments) {
+      for (const usedToken of alignment.targetNgram) {
+        if (token.text.toString() === usedToken.text.toString()
+          && token.occurrence === usedToken.occurrence
+          && token.occurrences === usedToken.occurrences) {
+          isUsed = true;
+          break;
+        }
+      }
+      if (isUsed) {
         break;
       }
     }

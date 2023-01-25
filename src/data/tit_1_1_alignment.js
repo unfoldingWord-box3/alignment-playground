@@ -223,7 +223,7 @@ export const sourceVerse = {
     }
   ]
 };
-export const alignedTokens = [
+export const alignments = [
   {
     "sourceNgram": [
       {
@@ -238,14 +238,14 @@ export const alignedTokens = [
       }
     ],
     "targetNgram": [
-      {
-        "text": "Paul",
-        "occurrence": 1,
-        "occurrences": 1,
-        "position": 0,
-        "suggestion": false,
-        "index": 0
-      }
+      // {
+      //   "text": "Paul",
+      //   "occurrence": 1,
+      //   "occurrences": 1,
+      //   "position": 0,
+      //   "suggestion": false,
+      //   "index": 0
+      // }
     ],
     "index": 0,
     "isSuggestion": false
