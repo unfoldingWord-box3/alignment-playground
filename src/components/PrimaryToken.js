@@ -67,6 +67,7 @@ class PrimaryToken extends Component {
       isHebrew,
       direction,
       isDragging,
+      setDragToken,
       connectDragSource,
     } = this.props;
     const { hover } = this.state;
@@ -83,6 +84,7 @@ class PrimaryToken extends Component {
           occurrence={token.occurrence}
           occurrences={token.occurrences}
           style={{ ...internalStyle.word, ...style }}
+          onDragStart={() => setDragToken(token)}
         />
       </div>
     );
@@ -133,6 +135,7 @@ PrimaryToken.propTypes = {
   connectDragSource: PropTypes.func.isRequired,
   direction: PropTypes.oneOf(['ltr', 'rtl']),
   isDragging: PropTypes.bool.isRequired,
+  setDragToken: PropTypes.bool.isRequired,
   isHebrew: PropTypes.bool.isRequired,
   showPopover: PropTypes.func.isRequired,
   getLexiconData: PropTypes.func.isRequired,
@@ -145,35 +148,6 @@ PrimaryToken.defaultProps = {
   canDrag: true,
   direction: 'ltr',
   style: {},
-};
-
-const dragHandler = {
-  beginDrag(props) {
-    // Return the data describing the dragged item
-    return {
-      token: props.token,
-      // text: props.token.text,
-      // lemma: props.token.lemma,
-      // morph: props.token.morph,
-      // strong: props.token.strong,
-      // occurrence: props.token.occurrence,
-      // occurrences: props.token.occurrences,
-      alignmentIndex: props.alignmentIndex,
-      alignmentLength: props.alignmentLength,
-
-      wordIndex: props.wordIndex,
-      type: types.PRIMARY_WORD,
-    };
-  },
-  canDrag() {
-    const canDrag_ = true; // for now at least, this is always true that we can drag from anywhere
-    return canDrag_;
-  },
-  isDragging(props, monitor) {
-    let item = monitor.getItem();
-    const isDragging_ = item.alignmentIndex === props.alignmentIndex; // if we are dragging this item
-    return isDragging_;
-  },
 };
 
 export default PrimaryToken;

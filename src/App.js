@@ -80,6 +80,15 @@ if (sourceVerse) {
   // }
 }
 
+let dragToken = null;
+const setDragToken = (token) => {
+  dragToken = token;
+};
+
+const getDragToken = () => {
+  return dragToken;
+};
+
 const App = () => {
 
   // const dragItem = useRef();
@@ -172,6 +181,8 @@ const App = () => {
           connectDropTarget={connectDropTarget}
           targetLanguageFont={targetLanguageFont}
           onDropTargetToken={handleUnalignTargetToken}
+          getDragToken={getDragToken}
+          setDragToken={setDragToken}
         />
       </div>
       {sourceVerse ? (
@@ -192,6 +203,8 @@ const App = () => {
           showPopover={showPopover}
           loadLexiconEntry={loadLexiconEntry}
           targetLanguageFont={targetLanguageFont}
+          getDragToken={getDragToken}
+          setDragToken={setDragToken}
         />
       ) : (
         'MissingBibleError'

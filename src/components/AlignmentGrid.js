@@ -47,6 +47,8 @@ class AlignmentGrid extends Component {
       toolsSettings,
       loadLexiconEntry,
       targetLanguageFont,
+      getDragToken,
+      setDragToken,
     } = this.props;
 
     if (!contextId) {
@@ -98,6 +100,8 @@ class AlignmentGrid extends Component {
                 loadLexiconEntry={loadLexiconEntry}
                 fontSize={fontSize}
                 targetLanguageFontClassName={targetLanguageFontClassName}
+                getDragToken={getDragToken}
+                setDragToken={setDragToken}
               />
               {/* placeholder for un-merging primary words */}
               <AlignmentCard
@@ -117,6 +121,8 @@ class AlignmentGrid extends Component {
                 isHebrew={isHebrew}
                 fontSize={fontSize}
                 targetLanguageFontClassName={targetLanguageFontClassName}
+                getDragToken={getDragToken}
+                setDragToken={setDragToken}
               />
             </React.Fragment>
           ))
@@ -163,6 +169,8 @@ AlignmentGrid.propTypes = {
   showPopover: PropTypes.func.isRequired,
   loadLexiconEntry: PropTypes.func.isRequired,
   targetLanguageFont: PropTypes.string,
+  getDragToken: PropTypes.func.isRequired,
+  setDragToken: PropTypes.func.isRequired,
 };
 
 AlignmentGrid.defaultProps = {

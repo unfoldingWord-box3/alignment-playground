@@ -83,6 +83,12 @@ class DroppableAlignmentCard extends Component {
     super(props);
     this._handleCancelSuggestion = this._handleCancelSuggestion.bind(this);
     this._handleAcceptSuggestion = this._handleAcceptSuggestion.bind(this);
+    this.drop = this.drop.bind(this);
+    this.dragging = this.dragging.bind(this);
+    this.allowDrop = this.allowDrop.bind(this);
+    this.state = {
+      dragToken: null,
+    };
   }
 
   _handleCancelSuggestion(token) {
@@ -99,6 +105,22 @@ class DroppableAlignmentCard extends Component {
     if (typeof onAcceptTokenSuggestion === 'function') {
       onAcceptTokenSuggestion(alignmentIndex, token);
     }
+  }
+
+  drop(ev) {
+    ev.preventDefault();
+    const token = this.props.getDragToken();
+    // this.props.onWordDragged(this.state.dragToken);
+    // var data = ev.dataTransfer.getData("text");
+    // ev.target.appendChild(document.getElementById(data));
+  }
+
+  dragging(dragToken) {
+    this.setState({dragToken: dragToken});
+  }
+
+  allowDrop(ev) {
+    ev.preventDefault();
   }
 
   render() {
@@ -121,6 +143,7 @@ class DroppableAlignmentCard extends Component {
       loadLexiconEntry,
       fontSize,
       targetLanguageFontClassName,
+      setDragToken,
     } = this.props;
     const acceptsTop = canDrop && dragItemType === types.PRIMARY_WORD;
     const acceptsBottom = canDrop && dragItemType === types.SECONDARY_WORD;
@@ -146,6 +169,7 @@ class DroppableAlignmentCard extends Component {
         showPopover={showPopover}
         getLexiconData={getLexiconData}
         loadLexiconEntry={loadLexiconEntry}
+        setDragToken={setDragToken}
       />
     ));
     const bottomWordCards = targetNgram.map((token, index) => (
@@ -157,6 +181,7 @@ class DroppableAlignmentCard extends Component {
         onCancel={this._handleCancelSuggestion}
         onAccept={this._handleAcceptSuggestion}
         targetLanguageFontClassName={targetLanguageFontClassName}
+        setDragToken={setDragToken}
       />
     ));
 
@@ -164,7 +189,10 @@ class DroppableAlignmentCard extends Component {
       return <div style={styles.root.closed}/>;
     } else {
       return (
-        <div>
+        <div
+          onDragOver={this.allowDrop}
+          onDrop={this.drop}
+        >
           <AlignmentCard targetTokenCards={bottomWordCards}
             targetDirection={targetDirection}
             hoverBottom={hoverBottom}
@@ -202,6 +230,8 @@ DroppableAlignmentCard.propTypes = {
   showPopover: PropTypes.func.isRequired,
   getLexiconData: PropTypes.func.isRequired,
   loadLexiconEntry: PropTypes.func.isRequired,
+  getDragToken: PropTypes.func.isRequired,
+  setDragToken: PropTypes.func.isRequired,
 };
 
 DroppableAlignmentCard.defaultProps = {

@@ -22,9 +22,13 @@ class WordList extends React.Component {
     super(props);
     this.listRef = React.createRef();
     this.isSelected = this.isSelected.bind(this);
+    this.allowDrop = this.allowDrop.bind(this);
+    this.drop = this.drop.bind(this);
+    this.dragging = this.dragging.bind(this);
     this.state = {
       width: 0,
       height: 0,
+      dragToken: null,
     };
   }
 
@@ -63,7 +67,22 @@ class WordList extends React.Component {
       this.setState(snapshot);
     }
   }
-
+  
+  allowDrop(ev) {
+    ev.preventDefault();
+  }
+  
+  drop(ev) {
+    ev.preventDefault();
+    const token = this.props.getDragToken();
+    // var data = ev.dataTransfer.getData("text");
+    // ev.target.appendChild(document.getElementById(data));
+  }
+  
+  dragging(dragToken) {
+    this.setState({dragToken: dragToken});
+  }
+  
   render() {
     const {
       words,
@@ -76,6 +95,8 @@ class WordList extends React.Component {
       setToolSettings,
       toolSettings,
       targetLanguageFont,
+      getDragToken,
+      setDragToken,
     } = this.props;
     const { width, height } = this.state;
 
@@ -94,7 +115,11 @@ class WordList extends React.Component {
 
       return (
         <React.Fragment>
-          <div ref={this.listRef} style={{ height: '100%' }}>
+          <div ref={this.listRef}
+               style={{ height: '100%' }}
+               onDrop={this.drop}
+               onDragOver={this.allowDrop}
+          >
             <div style={{
               display: 'flex', justifyContent: 'flex-end', padding: '0px 5px 5px',
             }}>
@@ -122,11 +147,12 @@ class WordList extends React.Component {
                   fontScale={toolSettings.fontSize}
                   onClick={onWordClick}
                   direction={direction}
-                  onEndDrag={onWordDragged}
                   selectedTokens={selectedWords}
                   selected={this.isSelected(token)}
                   disabled={token.disabled === true}
                   targetLanguageFontClassName={targetLanguageFontClassName}
+                  getDragToken={getDragToken}
+                  setDragToken={setDragToken}
                 />
               </div>
             ))}
@@ -146,6 +172,8 @@ WordList.propTypes = {
   direction: PropTypes.oneOf(['ltr', 'rtl']),
   toolsSettings: PropTypes.object.isRequired,
   setToolSettings: PropTypes.func.isRequired,
+  getDragToken: PropTypes.func.isRequired,
+  setDragToken: PropTypes.func.isRequired,
   toolSettings: PropTypes.object.isRequired,
   selectedWordPositions: PropTypes.arrayOf(PropTypes.number),
   words: PropTypes.arrayOf(PropTypes.instanceOf(Token)).isRequired,

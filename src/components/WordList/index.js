@@ -121,6 +121,8 @@ class DroppableWordList extends React.Component {
       toolsSettings,
       setToolSettings,
       targetLanguageFont,
+      getDragToken,
+      setDragToken,
     } = this.props;
     const { selectedWords, selectedWordPositions } = this.state;
     const { fontSize } = toolsSettings['WordList'] || {};
@@ -153,6 +155,8 @@ class DroppableWordList extends React.Component {
           targetLanguageFont={targetLanguageFont}
           onWordDragged={this.clearWordSelections}
           selectedWordPositions={selectedWordPositions}
+          getDragToken={getDragToken}
+          setDragToken={setDragToken}
         />
       </div>
     );
@@ -168,6 +172,8 @@ DroppableWordList.propTypes = {
   targetLanguageFont: PropTypes.string,
   toolsSettings: PropTypes.object.isRequired,
   setToolSettings: PropTypes.func.isRequired,
+  getDragToken: PropTypes.func.isRequired,
+  setDragToken: PropTypes.func.isRequired,
   direction: PropTypes.oneOf(['ltr', 'rtl']),
   onDropTargetToken: PropTypes.func.isRequired,
   words: PropTypes.arrayOf(PropTypes.instanceOf(Token)),

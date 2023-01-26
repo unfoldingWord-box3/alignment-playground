@@ -77,16 +77,17 @@ class SecondaryToken extends React.Component {
   }
 
   /**
-   * Sets the correct drag preview to use.
-   * TRICKY: react-dnd's custom drag layer has very poor performance so we
-   * are using static images instead of custom rendering.
+   * called when drag is initialized
    */
-  initDragPreview() {
+  initDragPreview(e) {
     const {
       selectedTokens,
       token,
-      connectDragPreview,
+      setDragToken,
+      // connectDragPreview,
     } = this.props;
+
+    setDragToken && setDragToken(token);
     const hasSelections = selectedTokens && selectedTokens.length > 0;
 
     // build token list
@@ -100,16 +101,16 @@ class SecondaryToken extends React.Component {
       tokens.push(token);
     }
 
-    const numSelections = tokens.length;
-
-    if (numSelections > 1 && connectDragPreview) {
-      const img = new Image();
-      img.onload = () => connectDragPreview(img);
-      img.src = this.getDragPreviewImage(numSelections);
-    } else if (connectDragPreview) {
-      // use default preview
-      connectDragPreview(null);
-    }
+    // const numSelections = tokens.length;
+    //
+    // if (numSelections > 1 && connectDragPreview) {
+    //   const img = new Image();
+    //   img.onload = () => connectDragPreview(img);
+    //   img.src = this.getDragPreviewImage(numSelections);
+    // } else if (connectDragPreview) {
+    //   // use default preview
+    //   connectDragPreview(null);
+    // }
   }
 
   /**
@@ -142,13 +143,10 @@ class SecondaryToken extends React.Component {
       selected,
       direction,
       isDragging,
-      connectDragSource,
       targetLanguageFontClassName,
       fontScale
     } = this.props;
     const opacity = isDragging ? 0.4 : 1;
-
-    this.initDragPreview();
 
     const wordComponent = (
       <div
@@ -167,6 +165,7 @@ class SecondaryToken extends React.Component {
           occurrence={token.occurrence}
           occurrences={token.occurrences}
           targetLanguageFontClassName={targetLanguageFontClassName}
+          onDragStart={this.initDragPreview}
         />
       </div>
     );
@@ -190,7 +189,8 @@ SecondaryToken.propTypes = {
   token: PropTypes.instanceOf(Token).isRequired,
   connectDragPreview: PropTypes.func.isRequired,
   connectDragSource: PropTypes.func.isRequired,
-  isDragging: PropTypes.bool.isRequired,
+  getDragToken: PropTypes.func.isRequired,
+  setDragToken: PropTypes.func.isRequired,
   alignmentIndex: PropTypes.number,
   direction: PropTypes.oneOf(['ltr', 'rtl']),
   disabled: PropTypes.bool,
@@ -259,15 +259,15 @@ const dragHandler = {
   },
 };
 
-/**
- * Specifies which props to inject into the component
- * @param connect
- * @param monitor
- */
-const collect = (connect, monitor) => ({
-  connectDragSource: connect.dragSource(),
-  isDragging: monitor.isDragging(),
-  connectDragPreview: connect.dragPreview(),
-});
+// /**
+//  * Specifies which props to inject into the component
+//  * @param connect
+//  * @param monitor
+//  */
+// const collect = (connect, monitor) => ({
+//   connectDragSource: connect.dragSource(),
+//   isDragging: monitor.isDragging(),
+//   connectDragPreview: connect.dragPreview(),
+// });
 
 export default SecondaryToken;
