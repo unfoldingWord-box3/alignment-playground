@@ -19,6 +19,7 @@ class DroppableWordList extends React.Component {
     this.handleWordSelection = this.handleWordSelection.bind(this);
     this.clearWordSelections = this.clearWordSelections.bind(this);
     this.onEscapeKeyPressed = this.onEscapeKeyPressed.bind(this);
+    this.onWordDropped = this.onWordDropped.bind(this);
   }
 
   setScrollState(wordList, nextProps) {
@@ -105,10 +106,17 @@ class DroppableWordList extends React.Component {
    * Un-selects all words in the list
    */
   clearWordSelections() {
+    const token = this.props.dragToken;
+    this.props.onDropTargetToken(token);
     this.setState({
       selectedWords: [],
       selectedWordPositions: [],
     });
+  }
+
+  onWordDropped() {
+    this.props.onDropTargetToken(this.props.dragToken);
+    this.props.clearWordSelections();
   }
 
   render() {
@@ -121,7 +129,7 @@ class DroppableWordList extends React.Component {
       toolsSettings,
       setToolSettings,
       targetLanguageFont,
-      getDragToken,
+      dragToken,
       setDragToken,
     } = this.props;
     const { selectedWords, selectedWordPositions } = this.state;
@@ -153,9 +161,9 @@ class DroppableWordList extends React.Component {
           setToolSettings={setToolSettings}
           onWordClick={this.handleWordSelection}
           targetLanguageFont={targetLanguageFont}
-          onWordDragged={this.clearWordSelections}
+          onWordDropped={this.onWordDropped}
           selectedWordPositions={selectedWordPositions}
-          getDragToken={getDragToken}
+          dragToken={dragToken}
           setDragToken={setDragToken}
         />
       </div>
@@ -172,7 +180,7 @@ DroppableWordList.propTypes = {
   targetLanguageFont: PropTypes.string,
   toolsSettings: PropTypes.object.isRequired,
   setToolSettings: PropTypes.func.isRequired,
-  getDragToken: PropTypes.func.isRequired,
+  dragToken: PropTypes.object.isRequired,
   setDragToken: PropTypes.func.isRequired,
   direction: PropTypes.oneOf(['ltr', 'rtl']),
   onDropTargetToken: PropTypes.func.isRequired,

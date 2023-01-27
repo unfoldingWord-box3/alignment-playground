@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import './App.css';
 import Lexer from "wordmap-lexer";
 import {removeUsfmMarkers} from "./utils/usfmHelpers";
@@ -80,41 +80,73 @@ if (sourceVerse) {
   // }
 }
 
-let dragToken = null;
-const setDragToken = (token) => {
-  dragToken = token;
-};
+function findInWordList(wordList, token) {
+  let found = -1;
+  for (let i = 0, l = wordList.length; i < l; i++) {
+    const item = wordList[i];
+    if (item.text === token.text &&
+      item.token0ccurrence === token.token0ccurrence) {
+      found = i;
+      break;
+    }
+  }
+  return found;
+}
 
-const getDragToken = () => {
-  return dragToken;
-};
+function findToken(tokens, token) {
+  let found = -1;
+  for (let i = 0, l = tokens.length; i < l; i++) {
+    const item = tokens[i];
+    if (item.text === token.text &&
+      item.occurrence === token.occurrence) {
+      found = i;
+      break;
+    }
+  }
+  return found;
+}
+
+function findAlignment(alignments, token) {
+  let found = -1;
+  let alignment = -1;
+  for (let i = 0, l = alignments.length; i < l; i++) {
+    const targets = alignments[i].targetNgram;
+    found = findToken(targets, token)
+    if (found >= 0) {
+      alignment = i;
+      break;
+    }
+  }
+  return { found, alignment };
+}
+
+function tokenToAlignment(token) {
+  return {
+    index: token.tokenPos,
+    occurrence: token.tokenOccurrence,
+    occurrences: token.tokenOccurrences,
+    position: token.tokenPos,
+    suggestion: false,
+    text: token.text,
+  }
+}
+
+function alignmentToToken(alignment) {
+  return {
+    tokenPos: alignment.index,
+    tokenOccurrence: alignment.occurrence,
+    tokenOccurrences: alignment.occurrences,
+    text: alignment.text,
+  }
+}
+
+const alignmentComparator = (a, b) => a.index - b.index;
 
 const App = () => {
-
-  // const dragItem = useRef();
-  // const dragOverItem = useRef();
-  // const [list, setList] = useState(['Item 1','Item 2','Item 3','Item 4','Item 5','Item 6']);
-  //
-  // const dragStart = (e, position) => {
-  //   dragItem.current = position;
-  //   console.log(e.target.innerHTML);
-  // };
-  //
-  // const dragEnter = (e, position) => {
-  //   dragOverItem.current = position;
-  //   console.log(e.target.innerHTML);
-  // };
-  //
-  // const drop = (e) => {
-  //   const copyListItems = [...list];
-  //   const dragItemContent = copyListItems[dragItem.current];
-  //   copyListItems.splice(dragItem.current, 1);
-  //   copyListItems.splice(dragOverItem.current, 0, dragItemContent);
-  //   dragItem.current = null;
-  //   dragOverItem.current = null;
-  //   setList(copyListItems);
-  // };
-
+  const [dragToken, setDragToken] = useState(null);
+  const [verseAlignments_, setVerseAlignments] = useState(verseAlignments);
+  const [wordListWords_, setWordListWords] = useState(wordListWords);
+  
   const over = false;
   const targetDirection = 'ltr';
   const sourceDirection = 'ltr';
@@ -122,23 +154,57 @@ const App = () => {
   const setToolSettings = () => {
     console.log('setToolSettings')
   };
-  const connectDropTarget = () => {
+  const connectDropTarget = (item) => {
     console.log('connectDropTarget')
   };
-  const handleUnalignTargetToken = () => {
+
+  const handleUnalignTargetToken = (item) => {
     console.log('handleUnalignTargetToken')
+    const { found, alignment } = findAlignment(verseAlignments_, item);
+    if (alignment >= 0) {
+      const verseAlignments = [...verseAlignments_]
+      verseAlignments[alignment].targetNgram.splice(found, 1);
+      setVerseAlignments(verseAlignments);
+    }
+
+    const found_ = findInWordList(wordListWords_, alignmentToToken(item));
+    if (found_ >= 0) {
+      const wordListWords = [...wordListWords_]
+      wordListWords[found_].disabled = false;
+      setWordListWords(wordListWords);
+    }
   };
-  const handleAlignTargetToken = () => {
-    console.log('handleAlignTargetToken')
+
+  const handleAlignTargetToken = (item, alignmentIndex, srcAlignmentIndex) => {
+    console.log('handleAlignTargetToken', {alignmentIndex, srcAlignmentIndex})
+    if (alignmentIndex !== srcAlignmentIndex) {
+      const verseAlignments = [...verseAlignments_]
+      const dest = verseAlignments[alignmentIndex];
+      let src = null;
+      let found = -1;
+      if (srcAlignmentIndex >= 0) {
+        src = verseAlignments[srcAlignmentIndex];
+        found = findToken(src.targetNgram, item);
+        if (found >= 0) {
+          src.targetNgram.splice(found, 1);
+        }
+      } else { // coming from word list
+        const found = findInWordList(wordListWords_, item);
+        if (found >= 0) {
+          const wordListWords = [...wordListWords_]
+          wordListWords[found].disabled = true;
+          setWordListWords(wordListWords);
+          item = tokenToAlignment(item);
+        }
+      }
+      
+      dest.targetNgram.push(item);
+      dest.targetNgram = dest.targetNgram.sort(alignmentComparator)
+      setVerseAlignments(verseAlignments);
+    }
   };
-  const handleAlignPrimaryToken = () => {
+  const handleAlignPrimaryToken = (item, alignmentIndex, srcAlignmentIndex) => {
     console.log('handleAlignPrimaryToken')
-  };
-  const handleRemoveSuggestion = () => {
-    console.log('handleRemoveSuggestion')
-  };
-  const handleAcceptTokenSuggestion = () => {
-    console.log('handleAcceptTokenSuggestion')
   };
   const targetLanguageFont = '';
   const resetWordList = false;
@@ -170,7 +236,7 @@ const App = () => {
     <div style={styles.container}>
       <div style={styles.wordListContainer}>
         <WordList
-          words={wordListWords}
+          words={wordListWords_}
           verse={contextId.reference.verse}
           isOver={over}
           chapter={contextId.reference.chapter}
@@ -181,7 +247,7 @@ const App = () => {
           connectDropTarget={connectDropTarget}
           targetLanguageFont={targetLanguageFont}
           onDropTargetToken={handleUnalignTargetToken}
-          getDragToken={getDragToken}
+          dragToken={dragToken}
           setDragToken={setDragToken}
         />
       </div>
@@ -190,20 +256,18 @@ const App = () => {
           sourceStyle={sourceStyle}
           sourceDirection={sourceDirection}
           targetDirection={targetDirection}
-          alignments={verseAlignments}
+          alignments={verseAlignments_}
           translate={translate}
           lexicons={lexicons}
           toolsSettings={toolsSettings}
           onDropTargetToken={handleAlignTargetToken}
           onDropSourceToken={handleAlignPrimaryToken}
-          onCancelSuggestion={handleRemoveSuggestion}
-          onAcceptTokenSuggestion={handleAcceptTokenSuggestion}
           contextId={contextId}
           isHebrew={isHebrew}
           showPopover={showPopover}
           loadLexiconEntry={loadLexiconEntry}
           targetLanguageFont={targetLanguageFont}
-          getDragToken={getDragToken}
+          dragToken={dragToken}
           setDragToken={setDragToken}
         />
       ) : (

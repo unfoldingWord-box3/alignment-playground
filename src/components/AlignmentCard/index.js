@@ -84,11 +84,7 @@ class DroppableAlignmentCard extends Component {
     this._handleCancelSuggestion = this._handleCancelSuggestion.bind(this);
     this._handleAcceptSuggestion = this._handleAcceptSuggestion.bind(this);
     this.drop = this.drop.bind(this);
-    this.dragging = this.dragging.bind(this);
     this.allowDrop = this.allowDrop.bind(this);
-    this.state = {
-      dragToken: null,
-    };
   }
 
   _handleCancelSuggestion(token) {
@@ -109,14 +105,12 @@ class DroppableAlignmentCard extends Component {
 
   drop(ev) {
     ev.preventDefault();
-    const token = this.props.getDragToken();
+    const token = this.props.dragToken;
+    const alignmentIndex = this.props.alignmentIndex;
+    this.props.onDrop(token, alignmentIndex);
     // this.props.onWordDragged(this.state.dragToken);
     // var data = ev.dataTransfer.getData("text");
     // ev.target.appendChild(document.getElementById(data));
-  }
-
-  dragging(dragToken) {
-    this.setState({dragToken: dragToken});
   }
 
   allowDrop(ev) {
@@ -230,7 +224,7 @@ DroppableAlignmentCard.propTypes = {
   showPopover: PropTypes.func.isRequired,
   getLexiconData: PropTypes.func.isRequired,
   loadLexiconEntry: PropTypes.func.isRequired,
-  getDragToken: PropTypes.func.isRequired,
+  dragToken: PropTypes.object.isRequired,
   setDragToken: PropTypes.func.isRequired,
 };
 

@@ -84,22 +84,37 @@ class SecondaryToken extends React.Component {
       selectedTokens,
       token,
       setDragToken,
+      onClick,
       // connectDragPreview,
     } = this.props;
 
-    setDragToken && setDragToken(token);
     const hasSelections = selectedTokens && selectedTokens.length > 0;
 
-    // build token list
+    const token_ = {
+      ...token,
+      type: types.SECONDARY_WORD
+    };
+    setDragToken && setDragToken(token_);
+    
     let tokens = [];
 
-    if (hasSelections) {
+    if (selectedTokens) {
       tokens = [...selectedTokens];
-    }
 
-    if (!containsToken(tokens, token)) {
+      // TRICKY: include the dragged token in the selection
+      if (!containsToken(tokens, token)) {
+        tokens.push(token);
+
+        // select the token so it's renders with the selections
+        if (onClick && selectedTokens.length > 0) {
+          onClick(token);
+        }
+      }
+    } else {
+      // TRICKY: always populate tokens.
       tokens.push(token);
     }
+
 
     // const numSelections = tokens.length;
     //
@@ -189,7 +204,7 @@ SecondaryToken.propTypes = {
   token: PropTypes.instanceOf(Token).isRequired,
   connectDragPreview: PropTypes.func.isRequired,
   connectDragSource: PropTypes.func.isRequired,
-  getDragToken: PropTypes.func.isRequired,
+  dragToken: PropTypes.object.isRequired,
   setDragToken: PropTypes.func.isRequired,
   alignmentIndex: PropTypes.number,
   direction: PropTypes.oneOf(['ltr', 'rtl']),

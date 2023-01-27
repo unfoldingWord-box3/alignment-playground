@@ -24,11 +24,9 @@ class WordList extends React.Component {
     this.isSelected = this.isSelected.bind(this);
     this.allowDrop = this.allowDrop.bind(this);
     this.drop = this.drop.bind(this);
-    this.dragging = this.dragging.bind(this);
     this.state = {
       width: 0,
       height: 0,
-      dragToken: null,
     };
   }
 
@@ -74,13 +72,10 @@ class WordList extends React.Component {
   
   drop(ev) {
     ev.preventDefault();
-    const token = this.props.getDragToken();
+    const token = this.props.dragToken;
+    this.props.onWordDropped(token);
     // var data = ev.dataTransfer.getData("text");
     // ev.target.appendChild(document.getElementById(data));
-  }
-  
-  dragging(dragToken) {
-    this.setState({dragToken: dragToken});
   }
   
   render() {
@@ -89,13 +84,12 @@ class WordList extends React.Component {
       isOver,
       direction,
       onWordClick,
-      onWordDragged,
       selectedWords,
       toolsSettings,
       setToolSettings,
       toolSettings,
       targetLanguageFont,
-      getDragToken,
+      dragToken,
       setDragToken,
     } = this.props;
     const { width, height } = this.state;
@@ -151,7 +145,7 @@ class WordList extends React.Component {
                   selected={this.isSelected(token)}
                   disabled={token.disabled === true}
                   targetLanguageFontClassName={targetLanguageFontClassName}
-                  getDragToken={getDragToken}
+                  dragToken={dragToken}
                   setDragToken={setDragToken}
                 />
               </div>
@@ -165,14 +159,14 @@ class WordList extends React.Component {
 
 WordList.propTypes = {
   onWordClick: PropTypes.func,
-  onWordDragged: PropTypes.func,
+  onWordDropped: PropTypes.func,
   selectedWords: PropTypes.array,
   isOver: PropTypes.bool.isRequired,
   targetLanguageFont: PropTypes.string,
   direction: PropTypes.oneOf(['ltr', 'rtl']),
   toolsSettings: PropTypes.object.isRequired,
   setToolSettings: PropTypes.func.isRequired,
-  getDragToken: PropTypes.func.isRequired,
+  dragToken: PropTypes.object.isRequired,
   setDragToken: PropTypes.func.isRequired,
   toolSettings: PropTypes.object.isRequired,
   selectedWordPositions: PropTypes.arrayOf(PropTypes.number),
