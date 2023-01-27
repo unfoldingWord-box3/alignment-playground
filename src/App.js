@@ -140,6 +140,19 @@ function alignmentToToken(alignment) {
   }
 }
 
+function alignmentCleanup(alignments) {
+  const alignments_ = [...alignments]
+  // remove empty
+  for (let i = 0; i < alignments_.length; i++) {
+    const alignment = alignments_[i]
+    if (!alignment.targetNgram.length && !alignment.sourceNgram.length) {
+      alignments_.splice(i, 1);
+      i--; // backup to accommodate deleted item
+    }
+  }
+  return alignments_;
+}
+
 const alignmentComparator = (a, b) => a.index - b.index;
 
 const App = () => {
@@ -207,7 +220,7 @@ const App = () => {
   const handleAlignPrimaryToken = (item, alignmentIndex, srcAlignmentIndex) => {
     console.log('handleAlignPrimaryToken', {alignmentIndex, srcAlignmentIndex})
     if (alignmentIndex !== srcAlignmentIndex) {
-      const verseAlignments = [...verseAlignments_]
+      let verseAlignments = [...verseAlignments_]
       const dest = verseAlignments[alignmentIndex];
       let src = null;
       let found = -1;
@@ -229,6 +242,7 @@ const App = () => {
         dest.targetNgram = dest.targetNgram.concat(targets);
         dest.targetNgram = dest.targetNgram.sort(alignmentComparator)
       }
+      verseAlignments = alignmentCleanup(verseAlignments);
       setVerseAlignments(verseAlignments);
     }
   };
