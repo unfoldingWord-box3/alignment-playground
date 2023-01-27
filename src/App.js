@@ -203,9 +203,36 @@ const App = () => {
       setVerseAlignments(verseAlignments);
     }
   };
+
   const handleAlignPrimaryToken = (item, alignmentIndex, srcAlignmentIndex) => {
-    console.log('handleAlignPrimaryToken')
+    console.log('handleAlignPrimaryToken', {alignmentIndex, srcAlignmentIndex})
+    if (alignmentIndex !== srcAlignmentIndex) {
+      const verseAlignments = [...verseAlignments_]
+      const dest = verseAlignments[alignmentIndex];
+      let src = null;
+      let found = -1;
+      let emptySource = false;
+      if (srcAlignmentIndex >= 0) {
+        src = verseAlignments[srcAlignmentIndex];
+        found = findToken(src.sourceNgram, item);
+        if (found >= 0) {
+          src.sourceNgram.splice(found, 1);
+          emptySource = !src.sourceNgram.length;
+        }
+      }
+      dest.sourceNgram.push(item);
+      dest.sourceNgram = dest.sourceNgram.sort(alignmentComparator)
+
+      if (emptySource && src) {
+        const targets = src.targetNgram;
+        src.targetNgram = [];
+        dest.targetNgram = dest.targetNgram.concat(targets);
+        dest.targetNgram = dest.targetNgram.sort(alignmentComparator)
+      }
+      setVerseAlignments(verseAlignments);
+    }
   };
+
   const targetLanguageFont = '';
   const resetWordList = false;
   const sourceLanguage = NT_ORIG_LANG;
@@ -276,22 +303,6 @@ const App = () => {
 
     </div>
 
-  // <>
-  //     {
-  //       list&&
-  //       list.map((item, index) => {
-  //         return (
-  //           <div style={wordStyle}
-  //                onDragStart={(e) => dragStart(e, index)}
-  //                onDragEnter={(e) => dragEnter(e, index)}
-  //                onDragEnd={drop}
-  //                key={index}
-  //                draggable>
-  //             {item}
-  //           </div>
-  //         );
-  //       })}
-  //   </>
   );
 };
 

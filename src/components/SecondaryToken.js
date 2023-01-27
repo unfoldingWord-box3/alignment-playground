@@ -88,8 +88,6 @@ class SecondaryToken extends React.Component {
       // connectDragPreview,
     } = this.props;
 
-    const hasSelections = selectedTokens && selectedTokens.length > 0;
-
     const token_ = {
       ...token,
       type: types.SECONDARY_WORD
@@ -114,18 +112,6 @@ class SecondaryToken extends React.Component {
       // TRICKY: always populate tokens.
       tokens.push(token);
     }
-
-
-    // const numSelections = tokens.length;
-    //
-    // if (numSelections > 1 && connectDragPreview) {
-    //   const img = new Image();
-    //   img.onload = () => connectDragPreview(img);
-    //   img.src = this.getDragPreviewImage(numSelections);
-    // } else if (connectDragPreview) {
-    //   // use default preview
-    //   connectDragPreview(null);
-    // }
   }
 
   /**
