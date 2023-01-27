@@ -30,10 +30,63 @@ class PrimaryToken extends Component {
     this._handleClick = this._handleClick.bind(this);
     this._handleOut = this._handleOut.bind(this);
     this._handleOver = this._handleOver.bind(this);
+    this.onDragStart = this.onDragStart.bind(this);
     this.state = {
       hover: false,
       anchorEl: null,
     };
+  }
+
+  /**
+   * called when drag is initialized
+   */
+  onDragStart(e) {
+    const {
+      selectedTokens,
+      token,
+      setDragToken,
+      onClick,
+      // connectDragPreview,
+    } = this.props;
+
+    // const hasSelections = selectedTokens && selectedTokens.length > 0;
+
+    const token_ = {
+      ...token,
+      type: types.PRIMARY_WORD
+    };
+    setDragToken && setDragToken(token_);
+
+    // let tokens = [];
+
+    // if (selectedTokens) {
+    //   tokens = [...selectedTokens];
+    //
+    //   // TRICKY: include the dragged token in the selection
+    //   if (!containsToken(tokens, token)) {
+    //     tokens.push(token);
+    //
+    //     // select the token so it's renders with the selections
+    //     if (onClick && selectedTokens.length > 0) {
+    //       onClick(token);
+    //     }
+    //   }
+    // } else {
+    //   // TRICKY: always populate tokens.
+    //   tokens.push(token);
+    // }
+
+
+    // const numSelections = tokens.length;
+    //
+    // if (numSelections > 1 && connectDragPreview) {
+    //   const img = new Image();
+    //   img.onload = () => connectDragPreview(img);
+    //   img.src = this.getDragPreviewImage(numSelections);
+    // } else if (connectDragPreview) {
+    //   // use default preview
+    //   connectDragPreview(null);
+    // }
   }
 
   /**
@@ -84,7 +137,7 @@ class PrimaryToken extends Component {
           occurrence={token.occurrence}
           occurrences={token.occurrences}
           style={{ ...internalStyle.word, ...style }}
-          onDragStart={() => setDragToken(token)}
+          onDragStart={this.onDragStart}
         />
       </div>
     );

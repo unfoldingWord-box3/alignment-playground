@@ -47,7 +47,7 @@ class SecondaryToken extends React.Component {
     super(props);
     this.handleCancel = this.handleCancel.bind(this);
     this.handleClick = this.handleClick.bind(this);
-    this.initDragPreview = this.initDragPreview.bind(this);
+    this.onDragStart = this.onDragStart.bind(this);
   }
 
   handleCancel() {
@@ -79,7 +79,7 @@ class SecondaryToken extends React.Component {
   /**
    * called when drag is initialized
    */
-  initDragPreview(e) {
+  onDragStart(e) {
     const {
       selectedTokens,
       token,
@@ -180,7 +180,7 @@ class SecondaryToken extends React.Component {
           occurrence={token.occurrence}
           occurrences={token.occurrences}
           targetLanguageFontClassName={targetLanguageFontClassName}
-          onDragStart={this.initDragPreview}
+          onDragStart={this.onDragStart}
         />
       </div>
     );
