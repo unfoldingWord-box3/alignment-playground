@@ -66,6 +66,7 @@ class AlignmentGrid extends Component {
     }
 
     const styles = makeStyles(this.props);
+    const draggedAlignment = dragToken ? this.state.draggedAlignment : -1;
     const targetLanguageFontClassName = getFontClassName(targetLanguageFont);
     const { fontSize } = toolsSettings['AlignmentGrid'] || {};
 
@@ -102,7 +103,7 @@ class AlignmentGrid extends Component {
                 isSuggestion={alignment.isSuggestion}
                 targetNgram={alignment.targetNgram}
                 sourceNgram={alignment.sourceNgram}
-                onDrop={(item, srcIndex) => this.handleDrop(alignment.index, item, this.state.draggedAlignment)}
+                onDrop={(item, srcIndex) => this.handleDrop(key, item, this.state.draggedAlignment)}
                 lexicons={lexicons}
                 isHebrew={isHebrew}
                 showPopover={showPopover}
@@ -123,7 +124,7 @@ class AlignmentGrid extends Component {
                 placeholderPosition="right"
                 targetNgram={[]}
                 sourceNgram={[]}
-                onDrop={(item, srcIndex) => this.handleDrop(alignment.index, item, this.state.draggedAlignment)}
+                onDrop={(item, srcIndex) => this.handleDrop(key, item, this.state.draggedAlignment, true)}
                 showPopover={showPopover}
                 getLexiconData={getLexiconData}
                 loadLexiconEntry={loadLexiconEntry}
@@ -133,6 +134,7 @@ class AlignmentGrid extends Component {
                 targetLanguageFontClassName={targetLanguageFontClassName}
                 dragToken={dragToken}
                 setDragToken={(token) => this.onDrag(token, key)}
+                showAsDrop={this.getShowAsDrop(draggedAlignment, key, alignment)}
               />
             </React.Fragment>
           ))
@@ -141,7 +143,14 @@ class AlignmentGrid extends Component {
     );
   }
 
-  handleDrop(alignmentIndex, item, srcAlignmentIndex) {
+  getShowAsDrop(draggedAlignment, key, alignment) {
+    const isCurrentKey = draggedAlignment === key;
+    const moreTheOneItem = alignment.targetNgram.length > 1;
+    const showDrop = isCurrentKey && moreTheOneItem;
+    return showDrop;
+  }
+
+  handleDrop(alignmentIndex, item, srcAlignmentIndex, startNew) {
     const { onDropTargetToken, onDropSourceToken } = this.props;
 
     if (item.type === types.SECONDARY_WORD) {
@@ -157,7 +166,7 @@ class AlignmentGrid extends Component {
     }
 
     if (item.type === types.PRIMARY_WORD) {
-      onDropSourceToken(item, alignmentIndex, srcAlignmentIndex);
+      onDropSourceToken(item, alignmentIndex, srcAlignmentIndex, startNew);
     }
     this.setState({draggedAlignment: -1});
   }

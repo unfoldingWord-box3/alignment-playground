@@ -141,19 +141,43 @@ function alignmentToToken(alignment) {
 }
 
 function alignmentCleanup(alignments) {
-  const alignments_ = [...alignments]
-  // remove empty
+  let alignments_ = [...alignments]
+
+  // remove empty and sort words
   for (let i = 0; i < alignments_.length; i++) {
     const alignment = alignments_[i]
     if (!alignment.targetNgram.length && !alignment.sourceNgram.length) {
       alignments_.splice(i, 1);
       i--; // backup to accommodate deleted item
+    } else { // order words in alignment
+      alignment.targetNgram = alignment.targetNgram.sort(indexComparator)
+      alignment.sourceNgram = alignment.sourceNgram.sort(indexComparator)
     }
   }
+
+  // alignment ordering by source words
+  alignments_ = alignments_.sort(alignmentComparator);
+
+  // update index and ordering
+  for (let i = 0; i < alignments_.length; i++) {
+    const alignment = alignments_[i]
+    alignment.index = i;
+  }
+
   return alignments_;
 }
 
-const alignmentComparator = (a, b) => a.index - b.index;
+function indexForAlignment(alignment) {
+  if (alignment.sourceNgram.length) {
+    const index = alignment.sourceNgram[0].index;
+    return index
+  }
+  return -1
+}
+
+const alignmentComparator = (a, b) => indexForAlignment(a) - indexForAlignment(b);
+
+const indexComparator = (a, b) => a.index - b.index;
 
 const App = () => {
   const [dragToken, setDragToken] = useState(null);
@@ -171,13 +195,18 @@ const App = () => {
     console.log('connectDropTarget')
   };
 
+  function updateVerseAlignments(verseAlignments) {
+    verseAlignments = alignmentCleanup(verseAlignments);
+    setVerseAlignments(verseAlignments);
+  }
+
   const handleUnalignTargetToken = (item) => {
     console.log('handleUnalignTargetToken')
     const { found, alignment } = findAlignment(verseAlignments_, item);
     if (alignment >= 0) {
       const verseAlignments = [...verseAlignments_]
       verseAlignments[alignment].targetNgram.splice(found, 1);
-      setVerseAlignments(verseAlignments);
+      updateVerseAlignments(verseAlignments);
     }
 
     const found_ = findInWordList(wordListWords_, alignmentToToken(item));
@@ -212,16 +241,15 @@ const App = () => {
       }
       
       dest.targetNgram.push(item);
-      dest.targetNgram = dest.targetNgram.sort(alignmentComparator)
-      setVerseAlignments(verseAlignments);
+      updateVerseAlignments(verseAlignments);
     }
   };
 
-  const handleAlignPrimaryToken = (item, alignmentIndex, srcAlignmentIndex) => {
-    console.log('handleAlignPrimaryToken', {alignmentIndex, srcAlignmentIndex})
-    if (alignmentIndex !== srcAlignmentIndex) {
+  const handleAlignPrimaryToken = (item, alignmentIndex, srcAlignmentIndex, startNew) => {
+    console.log('handleAlignPrimaryToken', {alignmentIndex, srcAlignmentIndex, startNew})
+    if ((alignmentIndex !== srcAlignmentIndex) || startNew) {
       let verseAlignments = [...verseAlignments_]
-      const dest = verseAlignments[alignmentIndex];
+      let dest = verseAlignments[alignmentIndex];
       let src = null;
       let found = -1;
       let emptySource = false;
@@ -233,17 +261,32 @@ const App = () => {
           emptySource = !src.sourceNgram.length;
         }
       }
-      dest.sourceNgram.push(item);
-      dest.sourceNgram = dest.sourceNgram.sort(alignmentComparator)
+
+      if (startNew) { // insert a new alignment
+        const newPosition = alignmentIndex + 1;
+        dest = {
+          index: newPosition,
+          isSuggestion: false,
+          sourceNgram: [ item ],
+          targetNgram: [],
+        }
+        verseAlignments.splice(newPosition, 0, dest)
+        for (let i = newPosition + 1; i < verseAlignments.length; i++) {
+          const item = verseAlignments[i]
+          item.index++;
+        }
+      } else { // add to existing alignment
+        dest.sourceNgram.push(item);
+        dest.sourceNgram = dest.sourceNgram.sort(indexComparator)
+      }
 
       if (emptySource && src) {
         const targets = src.targetNgram;
         src.targetNgram = [];
         dest.targetNgram = dest.targetNgram.concat(targets);
-        dest.targetNgram = dest.targetNgram.sort(alignmentComparator)
+        dest.targetNgram = dest.targetNgram.sort(indexComparator)
       }
-      verseAlignments = alignmentCleanup(verseAlignments);
-      setVerseAlignments(verseAlignments);
+      updateVerseAlignments(verseAlignments);
     }
   };
 

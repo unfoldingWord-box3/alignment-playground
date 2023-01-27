@@ -138,6 +138,7 @@ class DroppableAlignmentCard extends Component {
       fontSize,
       targetLanguageFontClassName,
       setDragToken,
+      showAsDrop,
     } = this.props;
     const acceptsTop = canDrop && dragItemType === types.PRIMARY_WORD;
     const acceptsBottom = canDrop && dragItemType === types.SECONDARY_WORD;
@@ -179,7 +180,7 @@ class DroppableAlignmentCard extends Component {
       />
     ));
 
-    if (emptyAlignment && !canDrop) {
+    if (emptyAlignment && !showAsDrop) {
       return <div style={styles.root.closed}/>;
     } else {
       return (
@@ -226,6 +227,7 @@ DroppableAlignmentCard.propTypes = {
   loadLexiconEntry: PropTypes.func.isRequired,
   dragToken: PropTypes.object.isRequired,
   setDragToken: PropTypes.func.isRequired,
+  showAsDrop: PropTypes.bool,
 };
 
 DroppableAlignmentCard.defaultProps = {
