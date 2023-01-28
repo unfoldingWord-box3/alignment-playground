@@ -312,16 +312,17 @@ const App = () => {
   // TRICKY: make hebrew text larger
   let sourceStyle = { fontSize: '100%' };
   const isHebrew = sourceLanguage === OT_ORIG_LANG;
-  if (resetWordList) { // if true then clear quickly so it's momentary
-    delay(100).then(() => {
-      setResetWordList(false)
-    });
-  }
 
   if (isHebrew) {
     sourceStyle = {
       fontSize: '175%', paddingTop: '2px', paddingBottom: '2px', lineHeight: 'normal', WebkitFontSmoothing: 'antialiased',
     };
+  }
+
+  if (resetWordList) {
+    delay(100).then(() => { // wait a moment for reset to happen before clearing
+      setResetWordList(false)
+    });
   }
 
   return (
