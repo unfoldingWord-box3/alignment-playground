@@ -40,6 +40,15 @@ class AlignmentGrid extends Component {
     };
   }
 
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.reset) {
+      this.setState({
+        draggedAlignment: -1,
+        draggedPrimaryAlignment: -1,
+      });
+    }
+  }
+
   onDrag(token, alignmentIndex, isPrimary) {
     this.setState({
       draggedAlignment: alignmentIndex,
@@ -179,6 +188,7 @@ class AlignmentGrid extends Component {
 }
 
 AlignmentGrid.propTypes = {
+  reset: PropTypes.bool,
   onDropTargetToken: PropTypes.func.isRequired,
   onDropSourceToken: PropTypes.func.isRequired,
   onCancelSuggestion: PropTypes.func.isRequired,
@@ -203,6 +213,7 @@ AlignmentGrid.defaultProps = {
   sourceDirection: 'ltr',
   targetDirection: 'ltr',
   sourceStyle: { fontSize: '100%' },
+  reset: false,
 };
 
 export default AlignmentGrid;

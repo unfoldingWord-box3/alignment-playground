@@ -184,7 +184,7 @@ const App = () => {
   const [dragToken, setDragToken] = useState(null);
   const [verseAlignments_, setVerseAlignments] = useState(verseAlignments);
   const [wordListWords_, setWordListWords] = useState(wordListWords);
-  const [resetWordList, setResetWordList] = useState(false);
+  const [resetDrag, setResetDrag] = useState(false);
   
   const over = false;
   const targetDirection = 'ltr';
@@ -217,7 +217,7 @@ const App = () => {
       wordListWords[found_].disabled = false;
       setWordListWords(wordListWords);
     }
-    setResetWordList(true)
+    setResetDrag(true)
   };
 
   const handleAlignTargetToken = (item, alignmentIndex, srcAlignmentIndex) => {
@@ -241,7 +241,7 @@ const App = () => {
           setWordListWords(wordListWords);
           item = tokenToAlignment(item);
         }
-        setResetWordList(true)
+        setResetDrag(true)
       }
       
       dest.targetNgram.push(item);
@@ -319,9 +319,9 @@ const App = () => {
     };
   }
 
-  if (resetWordList) {
+  if (resetDrag) {
     delay(100).then(() => { // wait a moment for reset to happen before clearing
-      setResetWordList(false)
+      setResetDrag(false)
     });
   }
 
@@ -335,7 +335,7 @@ const App = () => {
           chapter={contextId.reference.chapter}
           direction={targetDirection}
           toolsSettings={toolsSettings}
-          reset={resetWordList}
+          reset={resetDrag}
           setToolSettings={setToolSettings}
           connectDropTarget={connectDropTarget}
           targetLanguageFont={targetLanguageFont}
@@ -352,6 +352,7 @@ const App = () => {
           alignments={verseAlignments_}
           translate={translate}
           lexicons={lexicons}
+          reset={resetDrag}
           toolsSettings={toolsSettings}
           onDropTargetToken={handleAlignTargetToken}
           onDropSourceToken={handleAlignPrimaryToken}
