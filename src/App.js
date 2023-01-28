@@ -7,6 +7,7 @@ import {targetVerseText, sourceVerse, verseAlignments} from './data/tit_1_1_alig
 import WordList from './components/WordList/index';
 import AlignmentGrid from "./components/AlignmentGrid";
 import {NT_ORIG_LANG, OT_ORIG_LANG} from "./common/constants";
+import delay from "./utils/delay";
 
 const styles = {
   container: {
@@ -312,7 +313,9 @@ const App = () => {
   let sourceStyle = { fontSize: '100%' };
   const isHebrew = sourceLanguage === OT_ORIG_LANG;
   if (resetWordList) { // if true then clear quickly so it's momentary
-    setResetWordList(false)
+    delay(100).then(() => {
+      setResetWordList(false)
+    });
   }
 
   if (isHebrew) {

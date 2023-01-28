@@ -34,11 +34,17 @@ class AlignmentGrid extends Component {
   constructor(props) {
     super(props);
     this.onDrag = this.onDrag.bind(this);
-    this.state = {draggedAlignment: -1};
+    this.state = {
+      draggedAlignment: -1,
+      draggedPrimaryAlignment: -1,
+    };
   }
-  
-  onDrag(token, alignmentIndex) {
-    this.setState({draggedAlignment: alignmentIndex})
+
+  onDrag(token, alignmentIndex, isPrimary) {
+    this.setState({
+      draggedAlignment: alignmentIndex,
+      draggedPrimaryAlignment: isPrimary ? alignmentIndex : -1,
+    });
     this.props.setDragToken(token);
   }
 
@@ -112,7 +118,7 @@ class AlignmentGrid extends Component {
                 fontSize={fontSize}
                 targetLanguageFontClassName={targetLanguageFontClassName}
                 dragToken={dragToken}
-                setDragToken={(token) => this.onDrag(token, key)}
+                setDragToken={(token, isPrimary) => this.onDrag(token, key, isPrimary)}
               />
               {/* placeholder for un-merging primary words */}
               <AlignmentCard
@@ -133,8 +139,8 @@ class AlignmentGrid extends Component {
                 fontSize={fontSize}
                 targetLanguageFontClassName={targetLanguageFontClassName}
                 dragToken={dragToken}
-                setDragToken={(token) => this.onDrag(token, key)}
-                showAsDrop={this.getShowAsDrop(draggedAlignment, key, alignment)}
+                setDragToken={(token, isPrimary) => this.onDrag(token, key, isPrimary)}
+                showAsDrop={this.getShowAsDrop(key, alignment)}
               />
             </React.Fragment>
           ))
@@ -143,8 +149,8 @@ class AlignmentGrid extends Component {
     );
   }
 
-  getShowAsDrop(draggedAlignment, key, alignment) {
-    const isCurrentKey = draggedAlignment === key;
+  getShowAsDrop(key, alignment) {
+    const isCurrentKey = this.state.draggedPrimaryAlignment === key;
     const moreTheOneItem = alignment.targetNgram.length > 1;
     const showDrop = isCurrentKey && moreTheOneItem;
     return showDrop;
@@ -165,7 +171,10 @@ class AlignmentGrid extends Component {
       onDropSourceToken(item, alignmentIndex, srcAlignmentIndex, startNew);
     }
 
-    this.setState({draggedAlignment: -1});
+    this.setState({
+      draggedAlignment: -1,
+      draggedPrimaryAlignment: -1,
+    });
   }
 }
 
