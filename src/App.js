@@ -183,6 +183,7 @@ const App = () => {
   const [dragToken, setDragToken] = useState(null);
   const [verseAlignments_, setVerseAlignments] = useState(verseAlignments);
   const [wordListWords_, setWordListWords] = useState(wordListWords);
+  const [resetWordList, setResetWordList] = useState(false);
   
   const over = false;
   const targetDirection = 'ltr';
@@ -215,6 +216,7 @@ const App = () => {
       wordListWords[found_].disabled = false;
       setWordListWords(wordListWords);
     }
+    setResetWordList(true)
   };
 
   const handleAlignTargetToken = (item, alignmentIndex, srcAlignmentIndex) => {
@@ -238,6 +240,7 @@ const App = () => {
           setWordListWords(wordListWords);
           item = tokenToAlignment(item);
         }
+        setResetWordList(true)
       }
       
       dest.targetNgram.push(item);
@@ -291,7 +294,6 @@ const App = () => {
   };
 
   const targetLanguageFont = '';
-  const resetWordList = false;
   const sourceLanguage = NT_ORIG_LANG;
   const lexicons = {};
   const contextId = {
@@ -309,6 +311,9 @@ const App = () => {
   // TRICKY: make hebrew text larger
   let sourceStyle = { fontSize: '100%' };
   const isHebrew = sourceLanguage === OT_ORIG_LANG;
+  if (resetWordList) { // if true then clear quickly so it's momentary
+    setResetWordList(false)
+  }
 
   if (isHebrew) {
     sourceStyle = {

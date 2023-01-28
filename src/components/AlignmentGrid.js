@@ -103,7 +103,7 @@ class AlignmentGrid extends Component {
                 isSuggestion={alignment.isSuggestion}
                 targetNgram={alignment.targetNgram}
                 sourceNgram={alignment.sourceNgram}
-                onDrop={(item, srcIndex) => this.handleDrop(key, item, this.state.draggedAlignment)}
+                onDrop={(item) => this.handleDrop(key, item, this.state.draggedAlignment)}
                 lexicons={lexicons}
                 isHebrew={isHebrew}
                 showPopover={showPopover}
@@ -124,7 +124,7 @@ class AlignmentGrid extends Component {
                 placeholderPosition="right"
                 targetNgram={[]}
                 sourceNgram={[]}
-                onDrop={(item, srcIndex) => this.handleDrop(key, item, this.state.draggedAlignment, true)}
+                onDrop={(item) => this.handleDrop(key, item, this.state.draggedAlignment, true)}
                 showPopover={showPopover}
                 getLexiconData={getLexiconData}
                 loadLexiconEntry={loadLexiconEntry}
@@ -153,21 +153,18 @@ class AlignmentGrid extends Component {
   handleDrop(alignmentIndex, item, srcAlignmentIndex, startNew) {
     const { onDropTargetToken, onDropSourceToken } = this.props;
 
-    if (item.type === types.SECONDARY_WORD) {
-      if (item.tokens) {
-        // drop selected tokens
-        for (let i = 0; i < item.tokens.length; i++) {
-          onDropTargetToken(item.tokens[i], alignmentIndex, srcAlignmentIndex);
-        }
-      } else {
-        // drop single token
-        onDropTargetToken(item, alignmentIndex, srcAlignmentIndex);
+    if (Array.isArray(item)) {
+      // drop selected tokens
+      for (let i = 0; i < item.length; i++) {
+        onDropTargetToken(item[i], alignmentIndex, -1);
       }
-    }
-
-    if (item.type === types.PRIMARY_WORD) {
+    } else if (item.type === types.SECONDARY_WORD) {
+      // drop single token
+      onDropTargetToken(item, alignmentIndex, srcAlignmentIndex);
+    } else if (item.type === types.PRIMARY_WORD) {
       onDropSourceToken(item, alignmentIndex, srcAlignmentIndex, startNew);
     }
+
     this.setState({draggedAlignment: -1});
   }
 }

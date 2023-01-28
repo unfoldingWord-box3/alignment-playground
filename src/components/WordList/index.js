@@ -20,6 +20,7 @@ class DroppableWordList extends React.Component {
     this.clearWordSelections = this.clearWordSelections.bind(this);
     this.onEscapeKeyPressed = this.onEscapeKeyPressed.bind(this);
     this.onWordDropped = this.onWordDropped.bind(this);
+    this.onDrag = this.onDrag.bind(this);
   }
 
   setScrollState(wordList, nextProps) {
@@ -77,6 +78,22 @@ class DroppableWordList extends React.Component {
     this.setWordListScroll(wordList);
   }
 
+  onDrag(token) {
+    const words = [...this.state.selectedWords];
+    let dragging = token;
+    const index = words.indexOf(token);
+
+    if (index === -1) {
+      words.push(token);
+    }
+    
+    if (words.length > 1) {
+      dragging = words
+    }
+
+    this.props.setDragToken(dragging);
+  }
+  
   /**
    * maintains the list of selected words
    * @param token
@@ -106,8 +123,6 @@ class DroppableWordList extends React.Component {
    * Un-selects all words in the list
    */
   clearWordSelections() {
-    const token = this.props.dragToken;
-    this.props.onDropTargetToken(token);
     this.setState({
       selectedWords: [],
       selectedWordPositions: [],
@@ -116,7 +131,6 @@ class DroppableWordList extends React.Component {
 
   onWordDropped() {
     this.props.onDropTargetToken(this.props.dragToken);
-    this.props.clearWordSelections();
   }
 
   render() {
@@ -130,7 +144,6 @@ class DroppableWordList extends React.Component {
       setToolSettings,
       targetLanguageFont,
       dragToken,
-      setDragToken,
     } = this.props;
     const { selectedWords, selectedWordPositions } = this.state;
     const { fontSize } = toolsSettings['WordList'] || {};
@@ -164,7 +177,7 @@ class DroppableWordList extends React.Component {
           onWordDropped={this.onWordDropped}
           selectedWordPositions={selectedWordPositions}
           dragToken={dragToken}
-          setDragToken={setDragToken}
+          setDragToken={this.onDrag}
         />
       </div>
     );

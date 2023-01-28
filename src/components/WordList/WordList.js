@@ -1,8 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Token } from 'wordmap-lexer';
+import {Token} from 'wordmap-lexer';
 import SecondaryToken from '../SecondaryToken';
-import { getFontClassName } from '../../common/fontUtils';
+import {getFontClassName} from '../../common/fontUtils';
+
 // import ThreeDotMenu from '../ThreeDotMenu';
 
 /**
@@ -71,9 +72,13 @@ class WordList extends React.Component {
   }
   
   drop(ev) {
+    const {
+      dragToken,
+      onWordDropped,
+    } = this.props;
+    
     ev.preventDefault();
-    const token = this.props.dragToken;
-    this.props.onWordDropped(token);
+    onWordDropped(dragToken);
     // var data = ev.dataTransfer.getData("text");
     // ev.target.appendChild(document.getElementById(data));
   }
@@ -85,8 +90,6 @@ class WordList extends React.Component {
       direction,
       onWordClick,
       selectedWords,
-      toolsSettings,
-      setToolSettings,
       toolSettings,
       targetLanguageFont,
       dragToken,
