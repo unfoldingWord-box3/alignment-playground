@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import './App.css';
 import Lexer from "wordmap-lexer";
-import {removeUsfmMarkers} from "./utils/usfmHelpers";
+import {removeUsfmMarkers, usfmVerseToJson} from "./utils/usfmHelpers";
 import {tokenizeVerseObjects} from "./utils/verseObjects";
 import {targetVerseText, sourceVerse, verseAlignments} from './data/tit_1_1_alignment';
 import WordList from './components/WordList/index';
@@ -9,7 +9,7 @@ import AlignmentGrid from "./components/AlignmentGrid";
 import {NT_ORIG_LANG, OT_ORIG_LANG} from "./common/constants";
 import delay from "./utils/delay";
 import wordaligner from 'word-aligner';
-
+const alignedVerse = require('./data/en_ult_tit_1_1.json');
 const styles = {
   container: {
     display: 'flex',
@@ -77,13 +77,11 @@ let wordListWords = [];
 
 if (sourceVerse) {
   wordListWords = getLabeledTargetTokens(targetTokens, verseAlignments);
-  // for (let i = 0, l = wordListWords.length; i < l; i++) {
-  //   wordListWords[i].disabled = !! (i % 2);
-  // }
 }
 
-const object = wordaligner.unmerge(verseAlignments, sourceVerse);
-console.log('object');
+// extract alignments from USFM
+const targetVerse = usfmVerseToJson(alignedVerse[1]);
+const alignments_ = wordaligner.unmerge(targetVerse, sourceVerse);
 
 function findInWordList(wordList, token) {
   let found = -1;

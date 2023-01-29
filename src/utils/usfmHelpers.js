@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import usfm from 'usfm-js';
+import usfmjs from 'usfm-js';
 // helpers
 import * as bibleHelpers from './bibleHelpers';
 
@@ -10,7 +10,7 @@ import * as bibleHelpers from './bibleHelpers';
 export function getParsedUSFM(usfmData) {
   try {
     if (usfmData) {
-      return usfm.toJSON(usfmData, { convertToInt: ['occurrence', 'occurrences'] });
+      return usfmjs.toJSON(usfmData, { convertToInt: ['occurrence', 'occurrences'] });
     }
   } catch (e) {
     console.error(e);
@@ -144,6 +144,15 @@ export function getUSFMDetails(usfmObject) {
  * @returns {String} printable text from USFM.
  */
 export const removeUsfmMarkers = (targetVerseText) => {
-  const cleaned = usfm.removeMarker(targetVerseText);
+  const cleaned = usfmjs.removeMarker(targetVerseText);
   return cleaned;
 };
+
+export function usfmVerseToJson(verseUSFM) {
+  const verseObjects = usfmjs.toJSON('\\v 1 ' + verseUSFM, { chunk: true });
+
+  if (verseObjects?.verses?.[1]?.verseObjects) {
+    return verseObjects.verses[1].verseObjects;
+  }
+  return null;
+}
