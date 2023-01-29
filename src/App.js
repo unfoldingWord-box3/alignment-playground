@@ -8,6 +8,7 @@ import WordList from './components/WordList/index';
 import AlignmentGrid from "./components/AlignmentGrid";
 import {NT_ORIG_LANG, OT_ORIG_LANG} from "./common/constants";
 import delay from "./utils/delay";
+import wordaligner from 'word-aligner';
 
 const styles = {
   container: {
@@ -80,6 +81,9 @@ if (sourceVerse) {
   //   wordListWords[i].disabled = !! (i % 2);
   // }
 }
+
+const object = wordaligner.unmerge(verseAlignments, sourceVerse);
+console.log('object');
 
 function findInWordList(wordList, token) {
   let found = -1;
