@@ -86,7 +86,7 @@ function findInWordList(wordList, token) {
   for (let i = 0, l = wordList.length; i < l; i++) {
     const item = wordList[i];
     if (item.text === token.text &&
-      item.token0ccurrence === token.token0ccurrence) {
+      item.tokenOccurrence === token.tokenOccurrence) {
       found = i;
       break;
     }
