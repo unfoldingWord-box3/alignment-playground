@@ -213,7 +213,7 @@ export const cleanAlignmentMarkersFromString = usfmData => {
  * @param verseData
  * @return {string}
  */
-function convertVerseDataToUSFM(verseData) {
+export function convertVerseDataToUSFM(verseData) {
   const outputData = {
     'chapters': {},
     'headers': [],

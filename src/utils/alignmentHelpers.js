@@ -1,6 +1,7 @@
 import {usfmVerseToJson} from "./usfmHelpers";
 import wordaligner from "word-aligner";
 import * as UsfmFileConversionHelpers from "./UsfmFileConversionHelpers";
+import {convertVerseDataToUSFM} from "./UsfmFileConversionHelpers";
 
 /**
  * get all the alignments for verse from nested array (finds zaln objects)
@@ -55,11 +56,52 @@ export function getWordCountInVerse(verseAlignments, matchVerse, word) {
   return wordCount || 0;
 }
 
+/**
+ * convert to number if string
+ * @param {string|number} value
+ * @returns {number|*}
+ */
+function parseStrToNumber(value) {
+  if (typeof value === 'string') {
+    const number = parseInt(value);
+    return number;
+  }
+  return value;
+}
+
+/**
+ * for each item in word list convert occurrences to numbers
+ * @param {array} wordlist
+ * @returns {array}
+ */
+function convertOccurrences(wordlist) {
+  const wordlist_ = wordlist.map(item => {
+    const occurrence = parseStrToNumber(item.occurrence);
+    const occurrences = parseStrToNumber(item.occurrences);
+    return {
+      ...item,
+      occurrence,
+      occurrences,
+    }
+  })
+  return wordlist_;
+}
+
 export function extractAlignmentsFromTargetVerse(alignedVerseElement, sourceVerse) {
   const targetVerse = usfmVerseToJson(alignedVerseElement);
   const alignments = wordaligner.unmerge(targetVerse, sourceVerse);
   if (alignments.alignment) { // for compatibility change alignment to alignments
-    alignments.alignments = alignments.alignment;
+    // convert occurrence(s) from string to number
+    const alignments_ = alignments.alignment.map(alignment => {
+      const topWords = convertOccurrences(alignment.topWords);
+      const bottomWords = convertOccurrences(alignment.bottomWords);
+      return {
+        ...alignment,
+        topWords,
+        bottomWords,
+      }
+    })
+    alignments.alignments = alignments_;
   }
   return alignments;
 }
@@ -77,9 +119,8 @@ export function addAlignmentsToTargetVerse(targetVerseText, verseAlignments, sou
   }
 
   if (verseObjects) {
-    const targetVerse = usfmVerseToJson(verseObjects);
-    const alignments = wordaligner.unmerge(targetVerse, sourceVerse);
-    return alignments;
+    const targetVerse = convertVerseDataToUSFM(verseObjects);
+    return targetVerse;
   }
 
   return null;
