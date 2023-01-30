@@ -1,6 +1,6 @@
-# Getting Started with Create React App
+# Getting Started with alignment-playground
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Alignment Playground is a first pass of separating word alignment code and UI from the TC word alignment tool before moving into RCL. In the process replaced react-dnd with html5 drag/drop, and removed material UI dependencies.
 
 ## Available Scripts
 
@@ -9,7 +9,7 @@ In the project directory, you can run:
 ### `npm start`
 
 Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+Open [http://localhost:3005](http://localhost:3005) to view it in your browser.
 
 The page will reload when you make changes.\
 You may also see any lint errors in the console.

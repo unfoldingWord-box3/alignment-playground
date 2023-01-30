@@ -8,7 +8,8 @@ import WordList from './components/WordList/index';
 import AlignmentGrid from "./components/AlignmentGrid";
 import {NT_ORIG_LANG, OT_ORIG_LANG} from "./common/constants";
 import delay from "./utils/delay";
-import wordaligner from 'word-aligner';
+import {addAlignmentsToTargetVerse, extractAlignmentsFromTargetVerse} from "./utils/alignmentHelpers";
+
 const alignedVerse = require('./data/en_ult_tit_1_1.json');
 const styles = {
   container: {
@@ -80,8 +81,10 @@ if (sourceVerse) {
 }
 
 // extract alignments from USFM
-const targetVerse = usfmVerseToJson(alignedVerse[1]);
-const alignments_ = wordaligner.unmerge(targetVerse, sourceVerse);
+const alignedVerseText = alignedVerse[1];
+const alignments_ = extractAlignmentsFromTargetVerse(alignedVerseText, sourceVerse);
+const verseUsfm = addAlignmentsToTargetVerse(alignedVerseText, alignments_, sourceVerse);
+console.log(`verseUsfm`, verseUsfm);
 
 function findInWordList(wordList, token) {
   let found = -1;
@@ -125,6 +128,7 @@ function findAlignment(alignments, token) {
 
 function tokenToAlignment(token) {
   return {
+    ...token,
     index: token.tokenPos,
     occurrence: token.tokenOccurrence,
     occurrences: token.tokenOccurrences,
@@ -136,6 +140,7 @@ function tokenToAlignment(token) {
 
 function alignmentToToken(alignment) {
   return {
+    ...alignment,
     tokenPos: alignment.index,
     tokenOccurrence: alignment.occurrence,
     tokenOccurrences: alignment.occurrences,
@@ -194,9 +199,6 @@ const App = () => {
   const toolsSettings = {};
   const setToolSettings = () => {
     console.log('setToolSettings')
-  };
-  const connectDropTarget = (item) => {
-    console.log('connectDropTarget')
   };
 
   function updateVerseAlignments(verseAlignments) {
@@ -339,7 +341,6 @@ const App = () => {
           toolsSettings={toolsSettings}
           reset={resetDrag}
           setToolSettings={setToolSettings}
-          connectDropTarget={connectDropTarget}
           targetLanguageFont={targetLanguageFont}
           onDropTargetToken={handleUnalignTargetToken}
           dragToken={dragToken}
