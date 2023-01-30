@@ -126,3 +126,24 @@ export function addAlignmentsToTargetVerse(targetVerseText, verseAlignments, sou
   return null;
 }
 
+export function  getLabeledTargetTokens(targetTokens, alignments) {
+  return targetTokens.map(token => {
+    let isUsed = false;
+
+    for (const alignment of alignments) {
+      for (const usedToken of alignment.targetNgram) {
+        if (token.text.toString() === usedToken.text.toString()
+          && token.occurrence === usedToken.occurrence
+          && token.occurrences === usedToken.occurrences) {
+          isUsed = true;
+          break;
+        }
+      }
+      if (isUsed) {
+        break;
+      }
+    }
+    token.disabled = isUsed;
+    return token;
+  });
+}
