@@ -1,14 +1,16 @@
 import React, {useState} from 'react';
 import './App.css';
 import Lexer from "wordmap-lexer";
-import {removeUsfmMarkers} from "./utils/usfmHelpers";
+import {removeUsfmMarkers, usfmVerseToJson} from "./utils/usfmHelpers";
 import {tokenizeVerseObjects} from "./utils/verseObjects";
 import {targetVerseText, sourceVerse, verseAlignments} from './data/tit_1_1_alignment';
 import WordList from './components/WordList/index';
 import AlignmentGrid from "./components/AlignmentGrid";
 import {NT_ORIG_LANG, OT_ORIG_LANG} from "./common/constants";
 import delay from "./utils/delay";
+import {addAlignmentsToTargetVerse, extractAlignmentsFromTargetVerse} from "./utils/alignmentHelpers";
 
+const alignedVerse = require('./data/en_ult_tit_1_1.json');
 const styles = {
   container: {
     display: 'flex',
@@ -76,17 +78,20 @@ let wordListWords = [];
 
 if (sourceVerse) {
   wordListWords = getLabeledTargetTokens(targetTokens, verseAlignments);
-  // for (let i = 0, l = wordListWords.length; i < l; i++) {
-  //   wordListWords[i].disabled = !! (i % 2);
-  // }
 }
+
+// extract alignments from USFM
+const alignedVerseText = alignedVerse[1];
+const alignments_ = extractAlignmentsFromTargetVerse(alignedVerseText, sourceVerse);
+const verseUsfm = addAlignmentsToTargetVerse(alignedVerseText, alignments_, sourceVerse);
+console.log(`verseUsfm`, verseUsfm);
 
 function findInWordList(wordList, token) {
   let found = -1;
   for (let i = 0, l = wordList.length; i < l; i++) {
     const item = wordList[i];
     if (item.text === token.text &&
-      item.token0ccurrence === token.token0ccurrence) {
+      item.tokenOccurrence === token.tokenOccurrence) {
       found = i;
       break;
     }
@@ -123,6 +128,7 @@ function findAlignment(alignments, token) {
 
 function tokenToAlignment(token) {
   return {
+    ...token,
     index: token.tokenPos,
     occurrence: token.tokenOccurrence,
     occurrences: token.tokenOccurrences,
@@ -134,6 +140,7 @@ function tokenToAlignment(token) {
 
 function alignmentToToken(alignment) {
   return {
+    ...alignment,
     tokenPos: alignment.index,
     tokenOccurrence: alignment.occurrence,
     tokenOccurrences: alignment.occurrences,
@@ -192,9 +199,6 @@ const App = () => {
   const toolsSettings = {};
   const setToolSettings = () => {
     console.log('setToolSettings')
-  };
-  const connectDropTarget = (item) => {
-    console.log('connectDropTarget')
   };
 
   function updateVerseAlignments(verseAlignments) {
@@ -337,7 +341,6 @@ const App = () => {
           toolsSettings={toolsSettings}
           reset={resetDrag}
           setToolSettings={setToolSettings}
-          connectDropTarget={connectDropTarget}
           targetLanguageFont={targetLanguageFont}
           onDropTargetToken={handleUnalignTargetToken}
           dragToken={dragToken}
