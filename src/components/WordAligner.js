@@ -4,6 +4,11 @@ import AlignmentGrid from "./AlignmentGrid";
 import {OT_ORIG_LANG} from "../common/constants";
 import delay from "../utils/delay";
 
+const WORD_BANK=`Word Bank`;
+const GRID=`Alignment Grid`;
+const MERGE_ALIGNMENTS=`Alignment Grid - merget alignments`;
+const NEW_ALIGNMENT=`Alignment Grid - new alignment`;
+
 const styles = {
   container: {
     display: 'flex',
@@ -155,15 +160,16 @@ const alignmentComparator = (a, b) => indexForAlignment(a) - indexForAlignment(b
 const indexComparator = (a, b) => a.index - b.index;
 
 const WordAligner = ({
-                       verseAlignments,
-                       wordListWords,
-                       translate,
-                       contextId,
-                       targetLanguageFont,
-                       sourceLanguage,
-                       showPopover,
-                       lexicons,
-                       loadLexiconEntry,
+    verseAlignments,
+    wordListWords,
+    translate,
+    contextId,
+    targetLanguageFont,
+    sourceLanguage,
+    showPopover,
+    lexicons,
+    loadLexiconEntry,
+    onChange,
   }) => {
   const [dragToken, setDragToken] = useState(null);
   const [verseAlignments_, setVerseAlignments] = useState(verseAlignments);
@@ -178,6 +184,15 @@ const WordAligner = ({
     console.log('setToolSettings')
   };
 
+  function doChangeCallback(results) {
+    onChange && onChange({
+      ...results || {},
+      verseAlignments: verseAlignments_,
+      wordListWords: wordListWords_,
+      contextId,
+    });
+  }
+
   function updateVerseAlignments(verseAlignments) {
     verseAlignments = alignmentCleanup(verseAlignments);
     setVerseAlignments(verseAlignments);
@@ -185,6 +200,8 @@ const WordAligner = ({
 
   const handleUnalignTargetToken = (item) => {
     console.log('handleUnalignTargetToken')
+    const source=GRID
+    const target=WORD_BANK
     const { found, alignment } = findAlignment(verseAlignments_, item);
     if (alignment >= 0) {
       const verseAlignments = [...verseAlignments_]
@@ -199,11 +216,18 @@ const WordAligner = ({
       setWordListWords(wordListWords);
     }
     setResetDrag(true)
+    doChangeCallback({
+      step: `Unalign Bottom Word`,
+      source,
+      target,
+    });
   };
 
   const handleAlignTargetToken = (item, alignmentIndex, srcAlignmentIndex) => {
     console.log('handleAlignTargetToken', {alignmentIndex, srcAlignmentIndex})
     if (alignmentIndex !== srcAlignmentIndex) {
+      const target=GRID
+      let source=GRID
       const verseAlignments = [...verseAlignments_]
       const dest = verseAlignments[alignmentIndex];
       let src = null;
@@ -215,6 +239,7 @@ const WordAligner = ({
           src.targetNgram.splice(found, 1);
         }
       } else { // coming from word list
+        source=WORD_BANK
         const found = findInWordList(wordListWords_, item);
         if (found >= 0) {
           const wordListWords = [...wordListWords_]
@@ -227,12 +252,19 @@ const WordAligner = ({
 
       dest.targetNgram.push(item);
       updateVerseAlignments(verseAlignments);
+      doChangeCallback({
+        step: `Align Bottom Word`,
+        source,
+        target,
+      });
     }
   };
 
   const handleAlignPrimaryToken = (item, alignmentIndex, srcAlignmentIndex, startNew) => {
     console.log('handleAlignPrimaryToken', {alignmentIndex, srcAlignmentIndex, startNew})
     if ((alignmentIndex !== srcAlignmentIndex) || startNew) {
+      let target=MERGE_ALIGNMENTS
+      const source=GRID
       let verseAlignments = [...verseAlignments_]
       let dest = verseAlignments[alignmentIndex];
       let src = null;
@@ -248,6 +280,7 @@ const WordAligner = ({
       }
 
       if (startNew) { // insert a new alignment
+        target = NEW_ALIGNMENT;
         const newPosition = alignmentIndex + 1;
         dest = {
           index: newPosition,
@@ -272,6 +305,11 @@ const WordAligner = ({
         dest.targetNgram = dest.targetNgram.sort(indexComparator)
       }
       updateVerseAlignments(verseAlignments);
+      doChangeCallback({
+        step: `Align Top Word`,
+        source,
+        target,
+      });
     }
   };
   

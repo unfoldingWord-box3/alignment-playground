@@ -48,6 +48,10 @@ const App = () => {
   const showPopover = (key) => {console.log(`showPopover(${key})`)};
   const loadLexiconEntry = (key) => {console.log(`loadLexiconEntry(${key})`)};
   
+  function onChange(results) {
+    console.log(`WordAligner() - alignment changed, results`, results);
+  }
+
   return (
     <div >
       <WordAligner
@@ -60,6 +64,7 @@ const App = () => {
         showPopover={showPopover}
         lexicons={lexicons}
         loadLexiconEntry={loadLexiconEntry}
+        onChange={onChange}
       />
     </div>
   );
