@@ -184,9 +184,9 @@ const WordAligner = ({
     console.log('setToolSettings')
   };
 
-  function doChangeCallback(results) {
+  function doChangeCallback(results = {}) {
     onChange && onChange({
-      ...results || {},
+      ...results,
       verseAlignments: verseAlignments_,
       wordListWords: wordListWords_,
       contextId,

@@ -106,7 +106,7 @@ export function extractAlignmentsFromTargetVerse(alignedVerseElement, sourceVers
   return alignments;
 }
 
-export function addAlignmentsToTargetVerse(targetVerseText, verseAlignments, sourceVerse) {
+export function addAlignmentsToTargetVerse(targetVerseText, verseAlignments) {
   const verseString = UsfmFileConversionHelpers.cleanAlignmentMarkersFromString(targetVerseText);
   let verseObjects;
 

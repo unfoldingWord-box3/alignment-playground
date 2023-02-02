@@ -26,10 +26,11 @@ if (sourceVerse) {
   wordListWords = getLabeledTargetTokens(targetTokens, verseAlignments);
 }
 
-// extract alignments from USFM
+// extract alignments from target verse USFM
 const alignedVerseText = alignedVerse[1];
 const alignments_ = extractAlignmentsFromTargetVerse(alignedVerseText, sourceVerse);
-const verseUsfm = addAlignmentsToTargetVerse(alignedVerseText, alignments_, sourceVerse);
+// merge alignments into target verse and convert to USFM
+const verseUsfm = addAlignmentsToTargetVerse(alignedVerseText, alignments_);
 console.log(`verseUsfm`, verseUsfm);
 
 const App = () => {
@@ -49,7 +50,23 @@ const App = () => {
   const loadLexiconEntry = (key) => {console.log(`loadLexiconEntry(${key})`)};
   
   function onChange(results) {
-    console.log(`WordAligner() - alignment changed, results`, results);
+    console.log(`WordAligner() - alignment changed, results`, results);// merge alignments into target verse and convert to USFM
+    const wordBank = results.wordListWords.filter(item => !item.disabled)
+    // remap sourceNgram:topWords, targetNgram:bottomWords, 
+    const alignments_ = results.verseAlignments.map(item => ({
+      ...item,
+      topWords: item.sourceNgram,
+      bottomWords: item.targetNgram.map(item => ({
+        ...item,
+        word: item.word || item.text
+      })),
+    }));
+    const alignments = {
+      alignments: alignments_,
+      wordBank,
+    }
+    const verseUsfm = addAlignmentsToTargetVerse(targetVerseText, alignments);
+    console.log(verseUsfm);
   }
 
   return (
