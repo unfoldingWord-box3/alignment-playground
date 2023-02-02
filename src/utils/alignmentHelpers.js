@@ -70,7 +70,7 @@ function parseStrToNumber(value) {
 }
 
 /**
- * for each item in word list convert occurrences to numbers
+ * for each item in word list convert occurrence(s) to numbers
  * @param {array} wordlist
  * @returns {array}
  */
@@ -87,8 +87,14 @@ function convertOccurrences(wordlist) {
   return wordlist_;
 }
 
-export function extractAlignmentsFromTargetVerse(alignedVerseElement, sourceVerse) {
-  const targetVerse = usfmVerseToJson(alignedVerseElement);
+/**
+ * extract alignments from target verse USFM using sourceVerse for word ordering
+ * @param {string} alignedTargetVerse
+ * @param {object} sourceVerse - in verseObject format
+ * @return {array} list of alignments in target text
+ */
+export function extractAlignmentsFromTargetVerse(alignedTargetVerse, sourceVerse) {
+  const targetVerse = usfmVerseToJson(alignedTargetVerse);
   const alignments = wordaligner.unmerge(targetVerse, sourceVerse);
   if (alignments.alignment) { // for compatibility change alignment to alignments
     // convert occurrence(s) from string to number
@@ -106,7 +112,13 @@ export function extractAlignmentsFromTargetVerse(alignedVerseElement, sourceVers
   return alignments;
 }
 
-export function addAlignmentsToTargetVerse(targetVerseText, verseAlignments) {
+/**
+ * merge alignments into target verse
+ * @param {string} targetVerseText - target verse to receive alignments
+ * @param {{alignments, wordBank}} verseAlignments - contains all the alignments and wordbank is list of unaligned target words
+ * @return {string|null} target verse in USFM format
+ */
+export function addAlignmentsToTargetVerseUsingUnmerge(targetVerseText, verseAlignments) {
   const verseString = UsfmFileConversionHelpers.cleanAlignmentMarkersFromString(targetVerseText);
   let verseObjects;
 
@@ -147,3 +159,43 @@ export function  getLabeledTargetTokens(targetTokens, alignments) {
     return token;
   });
 }
+
+/**
+ * create wordbank of unused target words, transform alignments, and then merge alignments into target verse
+ * @param {array} wordListWords - list of all target words - the disabled flag indicates word is aligned
+ * @param {array} verseAlignments
+ * @param {string} targetVerseText - target verse to receive alignments
+ * @return {string|null} target verse in USFM format
+ */
+export function addAlignmentsToVerseUSFM(wordListWords, verseAlignments, targetVerseText) {
+  let wordBank = wordListWords.filter(item => (!item.disabled))
+  wordBank = wordBank.map(item => ({
+    ...item,
+    word: item.word || item.text,
+    occurrence: item.occurrence || item.tokenOccurrence,
+    occurrences: item.occurrences || item.tokenOccurrences,
+  }))
+  // remap sourceNgram:topWords, targetNgram:bottomWords, 
+  const alignments_ = verseAlignments.map(item => ({
+    ...item,
+    topWords: item.sourceNgram.map(item => ({
+      strong: item.strong,
+      lemma: item.lemma,
+      morph: item.morph,
+      occurrence: item.occurrence,
+      occurrences: item.occurrence,
+      word: item.word || item.text,
+    })),
+    bottomWords: item.targetNgram.map(item => ({
+      ...item,
+      word: item.word || item.text
+    })),
+  }));
+  const alignments = {
+    alignments: alignments_,
+    wordBank,
+  }
+  const verseUsfm = addAlignmentsToTargetVerseUsingUnmerge(targetVerseText, alignments);
+  return verseUsfm;
+}
+

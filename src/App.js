@@ -1,8 +1,8 @@
 import React from 'react';
 import './App.css';
-import {targetVerseText, sourceVerse, verseAlignments} from './data/tit_1_1_alignment';
+import {sourceVerse, targetVerseText, verseAlignments} from './data/tit_1_1_alignment';
 import {
-  addAlignmentsToTargetVerse,
+  addAlignmentsToTargetVerseUsingUnmerge, addAlignmentsToVerseUSFM,
   extractAlignmentsFromTargetVerse,
   getLabeledTargetTokens
 } from "./utils/alignmentHelpers";
@@ -30,7 +30,7 @@ if (sourceVerse) {
 const alignedVerseText = alignedVerse[1];
 const alignments_ = extractAlignmentsFromTargetVerse(alignedVerseText, sourceVerse);
 // merge alignments into target verse and convert to USFM
-const verseUsfm = addAlignmentsToTargetVerse(alignedVerseText, alignments_);
+const verseUsfm = addAlignmentsToTargetVerseUsingUnmerge(alignedVerseText, alignments_);
 console.log(`verseUsfm`, verseUsfm);
 
 const App = () => {
@@ -51,21 +51,7 @@ const App = () => {
   
   function onChange(results) {
     console.log(`WordAligner() - alignment changed, results`, results);// merge alignments into target verse and convert to USFM
-    const wordBank = results.wordListWords.filter(item => !item.disabled)
-    // remap sourceNgram:topWords, targetNgram:bottomWords, 
-    const alignments_ = results.verseAlignments.map(item => ({
-      ...item,
-      topWords: item.sourceNgram,
-      bottomWords: item.targetNgram.map(item => ({
-        ...item,
-        word: item.word || item.text
-      })),
-    }));
-    const alignments = {
-      alignments: alignments_,
-      wordBank,
-    }
-    const verseUsfm = addAlignmentsToTargetVerse(targetVerseText, alignments);
+    const verseUsfm = addAlignmentsToVerseUSFM(results.wordListWords, results.verseAlignments, targetVerseText);
     console.log(verseUsfm);
   }
 
