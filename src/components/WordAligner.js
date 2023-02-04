@@ -170,6 +170,7 @@ const WordAligner = ({
     lexicons,
     loadLexiconEntry,
     onChange,
+    getLexiconData
   }) => {
   const [dragToken, setDragToken] = useState(null);
   const [verseAlignments_, setVerseAlignments] = useState(verseAlignments);
@@ -365,6 +366,7 @@ const WordAligner = ({
         targetLanguageFont={targetLanguageFont}
         dragToken={dragToken}
         setDragToken={setDragToken}
+        getLexiconData={getLexiconData}
       />
 
     </div>

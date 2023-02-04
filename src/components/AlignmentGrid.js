@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 // constants
-import { getLexiconData } from '../utils/lexiconHelpers';
 import { getFontClassName } from '../common/fontUtils';
 import * as types from '../common/WordCardTypes';
 // components
@@ -74,6 +73,7 @@ class AlignmentGrid extends Component {
       loadLexiconEntry,
       targetLanguageFont,
       dragToken,
+      getLexiconData,
     } = this.props;
 
     if (!contextId) {
@@ -207,6 +207,7 @@ AlignmentGrid.propTypes = {
   targetLanguageFont: PropTypes.string,
   dragToken: PropTypes.object.isRequired,
   setDragToken: PropTypes.func.isRequired,
+  getLexiconData: PropTypes.func.isRequired,
 };
 
 AlignmentGrid.defaultProps = {

@@ -14,6 +14,7 @@ import Lexer from "wordmap-lexer";
 const alignedVerseUSFM = require('./data/en_ult_tit_1_1_partial.json');
 const originalVerseUSFM = require('./data/grk_tit_1_1.json');
 // grk_tit_1_1.json
+const LexiconData = require("./data/lexicons.json");
 
 const translate = (key) => {console.log(`translate(${key})`)};
 let targetTokens = [];
@@ -56,6 +57,11 @@ const App = () => {
   };
   const showPopover = (key) => {console.log(`showPopover(${key})`)};
   const loadLexiconEntry = (key) => {console.log(`loadLexiconEntry(${key})`)};
+  const getLexiconData_ = (lexiconId, entryId) => {
+    console.log(`loadLexiconEntry(${lexiconId}, ${entryId})`)
+    const entryData = LexiconData?.[lexiconId]?.[entryId];
+    return { [lexiconId]: { [entryId]: entryData } };
+  };
   
   function onChange(results) {
     console.log(`WordAligner() - alignment changed, results`, results);// merge alignments into target verse and convert to USFM
@@ -76,6 +82,7 @@ const App = () => {
         lexicons={lexicons}
         loadLexiconEntry={loadLexiconEntry}
         onChange={onChange}
+        getLexiconData={getLexiconData_}
       />
     </div>
   );

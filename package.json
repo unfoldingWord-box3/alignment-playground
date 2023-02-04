@@ -4,8 +4,8 @@
   "private": true,
   "devDependencies": {
     "fs-extra": "4.0.3",
-    "path-extra": "3.0.0",
-    "ospath": "1.2.2"
+    "ospath": "1.2.2",
+    "path-extra": "3.0.0"
   },
   "dependencies": {
     "@testing-library/jest-dom": "^5.16.5",

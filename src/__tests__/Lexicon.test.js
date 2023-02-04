@@ -15,8 +15,8 @@ let destFile = path.join(__dirname, './fixtures/lexicon/lexicons.json');
 describe.skip('lexicons', () => {
   
   it('get greek', () => {
-    readLexiconData(greekLexicon, 'G');
-    readLexiconData(hebrewLexicon, 'H');
+    readLexiconData(greekLexicon, 'ugl');
+    readLexiconData(hebrewLexicon, 'uhl');
     console.log(lexicons);
     fs.writeJsonSync(destFile, lexicons);
   });
