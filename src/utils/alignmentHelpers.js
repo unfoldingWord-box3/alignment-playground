@@ -88,6 +88,28 @@ function convertOccurrences(wordlist) {
 }
 
 /**
+ * add occurrences to words in verse objects
+ * @param verseObjects
+ */
+function getWordList(verseObjects) {
+  const verseObjects_ = [];
+  const wordCounts = {};
+  for (let i = 0, l = verseObjects.length; i < l; i++) {
+    const object = verseObjects[i];
+    if (object.type === 'word') {
+      const word = object.text;
+      const count = (wordCounts[word] || 0) + 1;
+      wordCounts[word] = count;
+      verseObjects_.push({
+        ...object,
+        occurrence: count,
+      });
+    }
+  }
+  return verseObjects_;
+}
+
+/**
  * extract alignments from target verse USFM using sourceVerse for word ordering
  * @param {string} alignedTargetVerse
  * @param {object} sourceVerse - in verseObject format
@@ -96,6 +118,7 @@ function convertOccurrences(wordlist) {
 export function extractAlignmentsFromTargetVerse(alignedTargetVerse, sourceVerse) {
   const targetVerse = usfmVerseToJson(alignedTargetVerse);
   const alignments = wordaligner.unmerge(targetVerse, sourceVerse);
+  const sourceWordList = getWordList(sourceVerse);
   if (alignments.alignment) { // for compatibility change alignment to alignments
     // convert occurrence(s) from string to number
     const alignments_ = alignments.alignment.map(alignment => {
@@ -105,6 +128,19 @@ export function extractAlignmentsFromTargetVerse(alignedTargetVerse, sourceVerse
         ...alignment,
         topWords,
         bottomWords,
+        sourceNgram: topWords.map(topWord => {
+          const pos = sourceWordList.findIndex(item => (
+            topWord.word === item.text &&
+            topWord.occurrence === item.occurrence
+          ));
+          return {
+            ...topWord,
+            position: pos,
+            index: pos,
+            text: topWord.text || topWord.word,
+          }
+        }),
+        targetNgram: bottomWords.map(item => ({ ...item, text: item.text || item.word })),
       }
     })
     alignments.alignments = alignments_;

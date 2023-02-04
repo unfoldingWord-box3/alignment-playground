@@ -81,7 +81,10 @@ class DroppableWordList extends React.Component {
   onDrag(token) {
     const words = [...this.state.selectedWords];
     let dragging = token;
-    const index = words.indexOf(token);
+    const index = words.findIndex(item => (
+      token.text === item.text &&
+      token.tokenOccurrence === item.tokenOccurrence
+    ));
 
     if (index === -1) {
       words.push(token);

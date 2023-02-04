@@ -1,37 +1,44 @@
 import React from 'react';
 import './App.css';
-import {sourceVerse, targetVerseText, verseAlignments} from './data/tit_1_1_alignment';
 import {
-  addAlignmentsToTargetVerseUsingUnmerge, addAlignmentsToVerseUSFM,
+  addAlignmentsToVerseUSFM,
   extractAlignmentsFromTargetVerse,
   getLabeledTargetTokens
 } from "./utils/alignmentHelpers";
 import {NT_ORIG_LANG} from "./common/constants";
 import WordAligner from "./components/WordAligner";
-import {removeUsfmMarkers} from "./utils/usfmHelpers";
+import {removeUsfmMarkers, usfmVerseToJson} from "./utils/usfmHelpers";
 import Lexer from "wordmap-lexer";
 
-const alignedVerse = require('./data/en_ult_tit_1_1.json');
+const alignedVerseUSFM = require('./data/en_ult_tit_1_1.json');
+const originalVerseUSFM = require('./data/grk_tit_1_1.json');
+// grk_tit_1_1.json
 
 const translate = (key) => {console.log(`translate(${key})`)};
 let targetTokens = [];
+
+const targetVerseText = alignedVerseUSFM[1];
+const sourceVerseText = originalVerseUSFM[1];
 
 if (targetVerseText) {
   targetTokens = Lexer.tokenize(removeUsfmMarkers(targetVerseText));
 }
 
 // TRICKY: do not show word list if there is no source bible.
+const sourceVerseObjects = usfmVerseToJson(sourceVerseText);
 let wordListWords = [];
-if (sourceVerse) {
+const targetVerseAlignments = extractAlignmentsFromTargetVerse(targetVerseText, sourceVerseObjects);
+const verseAlignments = targetVerseAlignments.alignments;
+if (sourceVerseObjects) {
   wordListWords = getLabeledTargetTokens(targetTokens, verseAlignments);
 }
 
 // extract alignments from target verse USFM
-const alignedVerseText = alignedVerse[1];
-const alignments_ = extractAlignmentsFromTargetVerse(alignedVerseText, sourceVerse);
-// merge alignments into target verse and convert to USFM
-const verseUsfm = addAlignmentsToTargetVerseUsingUnmerge(alignedVerseText, alignments_);
-console.log(`verseUsfm`, verseUsfm);
+// const alignedVerseText = alignedVerseUSFM[1];
+// const alignments_ = extractAlignmentsFromTargetVerse(alignedVerseText, sourceVerseObjects);
+// // merge alignments into target verse and convert to USFM
+// const verseUsfm = addAlignmentsToTargetVerseUsingUnmerge(alignedVerseText, alignments_);
+// console.log(`verseUsfm`, verseUsfm);
 
 const App = () => {
   const targetLanguageFont = '';
