@@ -15,8 +15,8 @@ const styles = {
     flexDirection: 'row',
     // width: '100vw',
     // height: '100%',
-    width: '800px',
-    height: '500px',
+    width: '100%',
+    height: '100%',
     fontSize: '14px',
   },
   groupMenuContainer: {

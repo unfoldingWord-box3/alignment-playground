@@ -1,6 +1,5 @@
 import { normalizer } from 'string-punctuation-tokenizer';
 import { referenceHelpers } from 'bible-reference-range';
-import * as BibleHelpers from './bibleHelpers';
 
 const ignoreFields = [ 'tag', 'type', 'text' ];
 const ignoreOrig = [ 'tw' ];
@@ -84,7 +83,7 @@ function getOccurrencesForWordList(wordList) {
  @param {array} verseObjects
  * @returns {*[]}
  */
-function getOriginalLanguageListForVerseData(verseObjects) {
+export function getOriginalLanguageListForVerseData(verseObjects) {
   const wordList = [];
   arrayToWordList(wordList, verseObjects);
   getOccurrencesForWordList(wordList);
@@ -103,15 +102,12 @@ export function getOrigLangWordListForVerse(chapterJson, verseRef) {
 }
 
 /**
- * get the word list for the aligned original words
- * @param {object} chapterJson
- * @param {string|number} verseRef
- * @returns {*[]}
+ * get the word list fram alignments
+ * @param alignments
+ * @return {array}
  */
-export function getAlignedWordListForVerse(chapterJson, verseRef) {
+export function getAlignedWordListFromAlignments(alignments) {
   const wordList = [];
-  const alignments = chapterJson?.[verseRef]?.alignments || [];
-
   for (const alignment of alignments) {
     for (const topWord of alignment.topWords) {
       topWord.unmatched = true;
@@ -121,7 +117,18 @@ export function getAlignedWordListForVerse(chapterJson, verseRef) {
       }
     }
   }
+  return wordList;
+}
 
+/**
+ * get the word list for the aligned original words
+ * @param {object} chapterJson
+ * @param {string|number} verseRef
+ * @returns {*[]}
+ */
+export function getAlignedWordListForVerse(chapterJson, verseRef) {
+  const alignments = chapterJson?.[verseRef]?.alignments || [];
+  const wordList = getAlignedWordListFromAlignments(alignments);
   return wordList;
 }
 
@@ -168,14 +175,15 @@ function normalizeList(originalWordList, normalOrig) {
  * @param {array} alignmentsWordList
  * @return {boolean} true if verse attributes updated
  */
-function updateAlignedWordsFromOriginalWordList(originalLangWordList, alignmentsWordList) {
+export function updateAlignedWordsFromOriginalWordList(originalLangWordList, alignmentsWordList) {
   let changed = false;
   let normalOrig = []; // an array to keep normalized original words
   let normalAlign = []; // an array to keep normalized aligned words
 
   for (let i = 0, l = alignmentsWordList.length; i < l; i++) {
     const alignedWord = alignmentsWordList[i];
-    let foundOrig = originalLangWordList.find(item => (item.word === alignedWord.word) && (item.occurrence === alignedWord.occurrence) && (item.occurrences === alignedWord.occurrences));
+    // eslint-disable-next-line eqeqeq
+    let foundOrig = originalLangWordList.find(item => (item.word === alignedWord.word) && (item.occurrence == alignedWord.occurrence) && (item.occurrences == alignedWord.occurrences));
 
     if (!foundOrig) { // fall back to normalized matching
       if (!normalOrig.length) { // if not initialized

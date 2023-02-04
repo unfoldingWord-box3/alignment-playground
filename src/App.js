@@ -10,7 +10,8 @@ import WordAligner from "./components/WordAligner";
 import {removeUsfmMarkers, usfmVerseToJson} from "./utils/usfmHelpers";
 import Lexer from "wordmap-lexer";
 
-const alignedVerseUSFM = require('./data/en_ult_tit_1_1.json');
+// const alignedVerseUSFM = require('./data/en_ult_tit_1_1.json');
+const alignedVerseUSFM = require('./data/en_ult_tit_1_1_partial.json');
 const originalVerseUSFM = require('./data/grk_tit_1_1.json');
 // grk_tit_1_1.json
 
@@ -63,7 +64,7 @@ const App = () => {
   }
 
   return (
-    <div >
+    <div style={{height:'650px', width:'800px'}}>
       <WordAligner
         verseAlignments={verseAlignments}
         wordListWords={wordListWords}
