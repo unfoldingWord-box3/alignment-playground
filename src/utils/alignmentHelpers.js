@@ -1,4 +1,4 @@
-import {usfmVerseToJson} from "./usfmHelpers";
+import {removeUsfmMarkers, usfmVerseToJson} from "./usfmHelpers";
 import wordaligner from "word-aligner";
 import * as UsfmFileConversionHelpers from "./UsfmFileConversionHelpers";
 import {convertVerseDataToUSFM} from "./UsfmFileConversionHelpers";
@@ -7,6 +7,7 @@ import {
   getOriginalLanguageListForVerseData,
   updateAlignedWordsFromOriginalWordList
 } from "./migrateOriginalLanguageHelpers";
+import Lexer from "wordmap-lexer";
 
 /**
  * get all the alignments for verse from nested array (finds zaln objects)
@@ -160,8 +161,14 @@ export function addAlignmentsToTargetVerseUsingUnmerge(targetVerseText, verseAli
   return null;
 }
 
-export function  getLabeledTargetTokens(targetTokens, alignments) {
-  return targetTokens.map(token => {
+/**
+ * iterate through the target words marking words as disabled if they are already used in alignments
+ * @param {array} targetWordList
+ * @param {array} alignments
+ * @returns {array} updated target word list
+ */
+export function  markTargetWordsAsDisabledIfAlreadyUsedForAlignments(targetWordList, alignments) {
+  return targetWordList.map(token => {
     let isUsed = false;
 
     for (const alignment of alignments) {
@@ -221,3 +228,51 @@ export function addAlignmentsToVerseUSFM(wordListWords, verseAlignments, targetV
   return verseUsfm;
 }
 
+/**
+ * parse target language and original language USFM text into the structures needed by the word-aligner
+ * @param {string} targetVerseUSFM
+ * @param {string} sourceVerseUSFM
+ * @returns {{wordListWords: *[], verseAlignments: *}}
+ */
+export function parseUsfmToWordAlignerData(targetVerseUSFM, sourceVerseUSFM) {
+  let targetTokens = [];
+  if (targetVerseUSFM) {
+    targetTokens = Lexer.tokenize(removeUsfmMarkers(targetVerseUSFM));
+  }
+
+  const sourceVerseObjects = usfmVerseToJson(sourceVerseUSFM);
+  let wordListWords = [];
+  const targetVerseAlignments = extractAlignmentsFromTargetVerse(targetVerseUSFM, sourceVerseObjects);
+  const verseAlignments = targetVerseAlignments.alignments;
+  if (sourceVerseObjects) {
+    wordListWords = markTargetWordsAsDisabledIfAlreadyUsedForAlignments(targetTokens, verseAlignments);
+  }
+  return {wordListWords, verseAlignments};
+}
+
+/**
+ * iterate through target word list to make sure all words are used, and then iterate through all alignments to make sure all source alignments have target words
+ * @param {array} targetWords
+ * @param {array} verseAlignments
+ * @returns {boolean}
+ */
+export function areAlgnmentsComplete(targetWords, verseAlignments) {
+  let alignmentComplete = true;
+  for (const word of targetWords) {
+    if (!word.disabled) {
+      alignmentComplete = false;
+      break;
+    }
+  }
+
+  if (alignmentComplete) {
+    for (const alignment of verseAlignments) {
+      const targetWordCount = alignment.targetNgram?.length || 0;
+      if (!targetWordCount) {
+        alignmentComplete = false;
+        break;
+      }
+    }
+  }
+  return alignmentComplete;
+}

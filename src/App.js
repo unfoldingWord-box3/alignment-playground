@@ -1,14 +1,11 @@
 import React from 'react';
 import './App.css';
 import {
-  addAlignmentsToVerseUSFM,
-  extractAlignmentsFromTargetVerse,
-  getLabeledTargetTokens
+  addAlignmentsToVerseUSFM, areAlgnmentsComplete,
+  parseUsfmToWordAlignerData
 } from "./utils/alignmentHelpers";
 import {NT_ORIG_LANG} from "./common/constants";
 import WordAligner from "./components/WordAligner";
-import {removeUsfmMarkers, usfmVerseToJson} from "./utils/usfmHelpers";
-import Lexer from "wordmap-lexer";
 
 // const alignedVerseUSFM = require('./data/en_ult_tit_1_1.json');
 const alignedVerseUSFM = require('./data/en_ult_tit_1_1_partial.json');
@@ -17,24 +14,16 @@ const originalVerseUSFM = require('./data/grk_tit_1_1.json');
 const LexiconData = require("./data/lexicons.json");
 
 const translate = (key) => {console.log(`translate(${key})`)};
-let targetTokens = [];
 
-const targetVerseText = alignedVerseUSFM[1];
-const sourceVerseText = originalVerseUSFM[1];
+const targetVerseUSFM = alignedVerseUSFM[1];
+const sourceVerseUSFM = originalVerseUSFM[1];
 
-if (targetVerseText) {
-  targetTokens = Lexer.tokenize(removeUsfmMarkers(targetVerseText));
-}
+const {wordListWords, verseAlignments} = parseUsfmToWordAlignerData(targetVerseUSFM, sourceVerseUSFM);
 
-// TRICKY: do not show word list if there is no source bible.
-const sourceVerseObjects = usfmVerseToJson(sourceVerseText);
-let wordListWords = [];
-const targetVerseAlignments = extractAlignmentsFromTargetVerse(targetVerseText, sourceVerseObjects);
-const verseAlignments = targetVerseAlignments.alignments;
-if (sourceVerseObjects) {
-  wordListWords = getLabeledTargetTokens(targetTokens, verseAlignments);
-}
+const alignmentComplete = areAlgnmentsComplete(wordListWords, verseAlignments);
+console.log(`Alignments are ${alignmentComplete ? 'COMPLETE!' : 'incomplete'}`);
 
+// TODO - round trip test
 // extract alignments from target verse USFM
 // const alignedVerseText = alignedVerseUSFM[1];
 // const alignments_ = extractAlignmentsFromTargetVerse(alignedVerseText, sourceVerseObjects);
@@ -65,8 +54,11 @@ const App = () => {
   
   function onChange(results) {
     console.log(`WordAligner() - alignment changed, results`, results);// merge alignments into target verse and convert to USFM
-    const verseUsfm = addAlignmentsToVerseUSFM(results.wordListWords, results.verseAlignments, targetVerseText);
+    const {wordListWords, verseAlignments} = results;
+    const verseUsfm = addAlignmentsToVerseUSFM(wordListWords, verseAlignments, targetVerseUSFM);
     console.log(verseUsfm);
+    const alignmentComplete = areAlgnmentsComplete(wordListWords, verseAlignments);
+    console.log(`Alignments are ${alignmentComplete ? 'COMPLETE!' : 'incomplete'}`);
   }
 
   return (
