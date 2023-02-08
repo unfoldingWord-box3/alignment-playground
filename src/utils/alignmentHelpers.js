@@ -1,7 +1,7 @@
 import {removeUsfmMarkers, usfmVerseToJson} from "./usfmHelpers";
 import wordaligner from "word-aligner";
 import * as UsfmFileConversionHelpers from "./UsfmFileConversionHelpers";
-import {convertVerseDataToUSFM} from "./UsfmFileConversionHelpers";
+import {convertVerseDataToUSFM, getUsfmForVerseContent} from "./UsfmFileConversionHelpers";
 import {
   getAlignedWordListFromAlignments,
   getOriginalLanguageListForVerseData,
@@ -94,6 +94,17 @@ function convertOccurrences(wordlist) {
 }
 
 /**
+ * get the word list from alignments
+ * @param {array} verseObjects
+ * @return {array}
+ */
+export function getWordListFromVerseObjects(verseObjects) {
+  const targetVerseUSFM = getUsfmForVerseContent({verseObjects})
+  const targetTokens = Lexer.tokenize(removeUsfmMarkers(targetVerseUSFM));
+  return targetTokens;
+}
+
+/**
  * extract alignments from target verse USFM using sourceVerse for word ordering
  * @param {string} alignedTargetVerse
  * @param {object} sourceVerse - in verseObject format
@@ -103,9 +114,10 @@ export function extractAlignmentsFromTargetVerse(alignedTargetVerse, sourceVerse
   const targetVerse = usfmVerseToJson(alignedTargetVerse);
   const alignments = wordaligner.unmerge(targetVerse, sourceVerse);
   const originalLangWordList = getOriginalLanguageListForVerseData(sourceVerse);
-  const alignedTargetWordList = getAlignedWordListFromAlignments(alignments.alignment);
+  const alignmentsWordList = getAlignedWordListFromAlignments(alignments.alignment);
+  const targetTokens = getWordListFromVerseObjects(targetVerse);
   // clean up metadata in alignments
-  updateAlignedWordsFromOriginalWordList(originalLangWordList, alignedTargetWordList);
+  updateAlignedWordsFromOriginalWordList(originalLangWordList, alignmentsWordList);
   if (alignments.alignment) { // for compatibility change alignment to alignments
     // convert occurrence(s) from string to number
     const alignments_ = alignments.alignment.map(alignment => {
@@ -127,7 +139,19 @@ export function extractAlignmentsFromTargetVerse(alignedTargetVerse, sourceVerse
             text: topWord.text || topWord.word,
           }
         }),
-        targetNgram: bottomWords.map(item => ({ ...item, text: item.text || item.word })),
+        targetNgram: bottomWords.map(bottomWord => {
+          const word = bottomWord.text || bottomWord.word;
+          const pos = targetTokens.findIndex(item => (
+            word === item.text &&
+            bottomWord.occurrence == item.tokenOccurrence
+          ));
+
+          return {
+            ...bottomWord,
+            index: pos,
+            text: word,
+          };
+        }),
       }
     })
     alignments.alignments = alignments_;
