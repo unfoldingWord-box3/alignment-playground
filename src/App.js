@@ -45,9 +45,8 @@ const App = () => {
     "groupId": "chapter_1"
   };
   const showPopover = (key) => {console.log(`showPopover(${key})`)};
-  const loadLexiconEntry = (key) => {console.log(`loadLexiconEntry(${key})`)};
-  const getLexiconData_ = (lexiconId, entryId) => {
-    console.log(`loadLexiconEntry(${lexiconId}, ${entryId})`)
+  const loadLexiconEntry = (lexiconId, entryId) => {
+    console.log(`loadLexiconEntry_(${lexiconId}, ${entryId})`)
     const entryData = LexiconData?.[lexiconId]?.[entryId];
     return { [lexiconId]: { [entryId]: entryData } };
   };
@@ -74,7 +73,6 @@ const App = () => {
         lexicons={lexicons}
         loadLexiconEntry={loadLexiconEntry}
         onChange={onChange}
-        getLexiconData={getLexiconData_}
       />
     </div>
   );

@@ -1,6 +1,6 @@
 # Getting Started with alignment-playground
 
-Alignment Playground is a first pass of separating word alignment code and UI from the TC word alignment tool before moving into RCL. In the process replaced react-dnd with html5 drag/drop, and removed material UI dependencies.
+Alignment Playground is a first pass of separating word alignment code and UI from the TC word alignment tool as a first step before moving it into an RCL. In the process removed redux, replaced react-dnd with html5 drag/drop, and removed material UI dependencies.
 
 ## Available Scripts
 
