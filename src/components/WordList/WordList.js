@@ -108,7 +108,7 @@ class WordList extends React.Component {
       );
     } else {
       const targetLanguageFontClassName = getFontClassName(targetLanguageFont);
-      const isRtl = direction === 'rtl';
+      // const isRtl = direction === 'rtl';
 
       return (
         <React.Fragment>

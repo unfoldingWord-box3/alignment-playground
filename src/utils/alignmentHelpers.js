@@ -129,7 +129,7 @@ export function extractAlignmentsFromTargetVerse(alignedTargetVerse, sourceVerse
         bottomWords,
         sourceNgram: topWords.map(topWord => {
           const pos = originalLangWordList.findIndex(item => (
-            topWord.word === item.text &&
+            topWord.word === (item.word || item.text) &&
             topWord.occurrence === item.occurrence
           ));
           return {
@@ -141,8 +141,10 @@ export function extractAlignmentsFromTargetVerse(alignedTargetVerse, sourceVerse
         }),
         targetNgram: bottomWords.map(bottomWord => {
           const word = bottomWord.text || bottomWord.word;
+          // noinspection EqualityComparisonWithCoercionJS
           const pos = targetTokens.findIndex(item => (
             word === item.text &&
+            // eslint-disable-next-line eqeqeq
             bottomWord.occurrence == item.tokenOccurrence
           ));
 
