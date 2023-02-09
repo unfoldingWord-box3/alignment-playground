@@ -113,11 +113,11 @@ export function getWordListFromVerseObjects(verseObjects) {
 export function extractAlignmentsFromTargetVerse(alignedTargetVerse, sourceVerse) {
   const targetVerse = usfmVerseToJson(alignedTargetVerse);
   const alignments = wordaligner.unmerge(targetVerse, sourceVerse);
-  const originalLangWordList = getOriginalLanguageListForVerseData(sourceVerse);
+  const originalLangWordList = sourceVerse && getOriginalLanguageListForVerseData(sourceVerse);
   const alignmentsWordList = getAlignedWordListFromAlignments(alignments.alignment);
   const targetTokens = getWordListFromVerseObjects(targetVerse);
   // clean up metadata in alignments
-  updateAlignedWordsFromOriginalWordList(originalLangWordList, alignmentsWordList);
+  originalLangWordList && updateAlignedWordsFromOriginalWordList(originalLangWordList, alignmentsWordList);
   if (alignments.alignment) { // for compatibility change alignment to alignments
     // convert occurrence(s) from string to number
     const alignments_ = alignments.alignment.map(alignment => {
@@ -128,16 +128,19 @@ export function extractAlignmentsFromTargetVerse(alignedTargetVerse, sourceVerse
         topWords,
         bottomWords,
         sourceNgram: topWords.map(topWord => {
-          const pos = originalLangWordList.findIndex(item => (
-            topWord.word === (item.word || item.text) &&
-            topWord.occurrence === item.occurrence
-          ));
-          return {
-            ...topWord,
-            position: pos,
-            index: pos,
-            text: topWord.text || topWord.word,
+          if (originalLangWordList) {
+            const pos = originalLangWordList.findIndex(item => (
+              topWord.word === (item.word || item.text) &&
+              topWord.occurrence === item.occurrence
+            ));
+            return {
+              ...topWord,
+              position: pos,
+              index: pos,
+              text: topWord.text || topWord.word,
+            }
           }
+          return topWord;
         }),
         targetNgram: bottomWords.map(bottomWord => {
           const word = bottomWord.text || bottomWord.word;
@@ -180,7 +183,7 @@ export function addAlignmentsToTargetVerseUsingMerge(targetVerseText, verseAlign
   }
 
   if (verseObjects) {
-    const targetVerse = convertVerseDataToUSFM(verseObjects);
+    const targetVerse = convertVerseDataToUSFM({verseObjects});
     return targetVerse;
   }
 
@@ -257,7 +260,7 @@ export function addAlignmentsToVerseUSFM(wordListWords, verseAlignments, targetV
 /**
  * parse target language and original language USFM text into the structures needed by the word-aligner
  * @param {string} targetVerseUSFM
- * @param {string} sourceVerseUSFM
+ * @param {string|null} sourceVerseUSFM
  * @returns {{wordListWords: *[], verseAlignments: *}}
  */
 export function parseUsfmToWordAlignerData(targetVerseUSFM, sourceVerseUSFM) {
@@ -266,13 +269,11 @@ export function parseUsfmToWordAlignerData(targetVerseUSFM, sourceVerseUSFM) {
     targetTokens = Lexer.tokenize(removeUsfmMarkers(targetVerseUSFM));
   }
 
-  const sourceVerseObjects = usfmVerseToJson(sourceVerseUSFM);
+  const sourceVerseObjects = sourceVerseUSFM && usfmVerseToJson(sourceVerseUSFM);
   let wordListWords = [];
   const targetVerseAlignments = extractAlignmentsFromTargetVerse(targetVerseUSFM, sourceVerseObjects);
   const verseAlignments = targetVerseAlignments.alignments;
-  if (sourceVerseObjects) {
-    wordListWords = markTargetWordsAsDisabledIfAlreadyUsedForAlignments(targetTokens, verseAlignments);
-  }
+  wordListWords = markTargetWordsAsDisabledIfAlreadyUsedForAlignments(targetTokens, verseAlignments);
   return {wordListWords, verseAlignments};
 }
 
@@ -301,4 +302,31 @@ export function areAlgnmentsComplete(targetWords, verseAlignments) {
     }
   }
   return alignmentComplete;
+}
+
+/**
+ * merge alignments into target verse
+ * @return {string|null} target verse in USFM format
+ * @param {array} targetVerseObjects
+ * @param {string} newTargetVerse
+ */
+export function updateAlignmentsToTargetVerse(targetVerseObjects, newTargetVerse) {
+  let targetVerseText = convertVerseDataToUSFM(targetVerseObjects);
+  let { wordListWords, verseAlignments } = parseUsfmToWordAlignerData(targetVerseText, null);
+  const targetTokens = getWordListFromVerseObjects(usfmVerseToJson(newTargetVerse));
+  for (const targetToken of targetTokens) {
+    const pos = wordListWords.findIndex(word => (
+      word.text === targetToken.text &&
+        word.tokenOccurrence === targetToken.tokenOccurrence
+    ))
+    if (pos < 0) {
+      wordListWords.push(targetToken);
+    }
+  }
+  targetVerseText = addAlignmentsToVerseUSFM(wordListWords, verseAlignments, newTargetVerse);
+  const alignedVerseObjects = usfmVerseToJson(targetVerseText)
+  return {
+    targetVerseObjects: alignedVerseObjects,
+    targetVerseText,
+  };
 }
