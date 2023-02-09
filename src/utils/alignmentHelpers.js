@@ -167,7 +167,7 @@ export function extractAlignmentsFromTargetVerse(alignedTargetVerse, sourceVerse
  * @param {{alignments, wordBank}} verseAlignments - contains all the alignments and wordbank is list of unaligned target words
  * @return {string|null} target verse in USFM format
  */
-export function addAlignmentsToTargetVerseUsingUnmerge(targetVerseText, verseAlignments) {
+export function addAlignmentsToTargetVerseUsingMerge(targetVerseText, verseAlignments) {
   const verseString = UsfmFileConversionHelpers.cleanAlignmentMarkersFromString(targetVerseText);
   let verseObjects;
 
@@ -176,7 +176,7 @@ export function addAlignmentsToTargetVerseUsingUnmerge(targetVerseText, verseAli
       verseAlignments.alignments, verseAlignments.wordBank, verseString, true,
     );
   } catch (e) {
-    console.log(`addAlignmentsToTargetVerse() - invalid alignment`, e);
+    console.log(`addAlignmentsToTargetVerseUsingMerge() - invalid alignment`, e);
   }
 
   if (verseObjects) {
@@ -250,7 +250,7 @@ export function addAlignmentsToVerseUSFM(wordListWords, verseAlignments, targetV
     alignments: alignments_,
     wordBank,
   }
-  const verseUsfm = addAlignmentsToTargetVerseUsingUnmerge(targetVerseText, alignments);
+  const verseUsfm = addAlignmentsToTargetVerseUsingMerge(targetVerseText, alignments);
   return verseUsfm;
 }
 
