@@ -1,11 +1,9 @@
 import React from 'react';
 import './App.css';
-import {
-  addAlignmentsToVerseUSFM, areAlgnmentsComplete,
-  parseUsfmToWordAlignerData
-} from "./utils/alignmentHelpers";
+import { AlignmentHelpers, WordAligner} from 'word-aligner-rcl'
 import {NT_ORIG_LANG} from "./common/constants";
-import WordAligner from "./components/WordAligner";
+
+console.log(WordAligner);
 
 // const alignedVerseUSFM = require('./data/en_ult_tit_1_1.json');
 const alignedVerseUSFM = require('./data/en_ult_tit_1_1_partial.json');
@@ -18,9 +16,9 @@ const translate = (key) => {console.log(`translate(${key})`)};
 const targetVerseUSFM = alignedVerseUSFM[1];
 const sourceVerseUSFM = originalVerseUSFM[1];
 
-const {wordListWords, verseAlignments} = parseUsfmToWordAlignerData(targetVerseUSFM, sourceVerseUSFM);
+const {wordListWords, verseAlignments} = AlignmentHelpers.parseUsfmToWordAlignerData(targetVerseUSFM, sourceVerseUSFM);
 
-const alignmentComplete = areAlgnmentsComplete(wordListWords, verseAlignments);
+const alignmentComplete = AlignmentHelpers.areAlgnmentsComplete(wordListWords, verseAlignments);
 console.log(`Alignments are ${alignmentComplete ? 'COMPLETE!' : 'incomplete'}`);
 
 // TODO - round trip test
@@ -54,9 +52,9 @@ const App = () => {
   function onChange(results) {
     console.log(`WordAligner() - alignment changed, results`, results);// merge alignments into target verse and convert to USFM
     const {wordListWords, verseAlignments} = results;
-    const verseUsfm = addAlignmentsToVerseUSFM(wordListWords, verseAlignments, targetVerseUSFM);
+    const verseUsfm = AlignmentHelpers.addAlignmentsToVerseUSFM(wordListWords, verseAlignments, targetVerseUSFM);
     console.log(verseUsfm);
-    const alignmentComplete = areAlgnmentsComplete(wordListWords, verseAlignments);
+    const alignmentComplete = AlignmentHelpers.areAlgnmentsComplete(wordListWords, verseAlignments);
     console.log(`Alignments are ${alignmentComplete ? 'COMPLETE!' : 'incomplete'}`);
   }
 
