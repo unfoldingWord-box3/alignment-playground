@@ -304,6 +304,58 @@ export function areAlgnmentsComplete(targetWords, verseAlignments) {
   return alignmentComplete;
 }
 
+function handleAddedWordsInNewText(targetTokens, wordListWords, verseAlignments) {
+  for (const targetToken of targetTokens) {
+    const pos = wordListWords.findIndex(word => (
+      word.text === targetToken.text &&
+      word.tokenOccurrence === targetToken.tokenOccurrence
+    ))
+    if (pos < 0) {
+      const occurrences = targetToken.tokenOccurrences;
+      const tokenWord = targetToken.text;
+      // update occurrence count for all aligned instances of this word
+      for (const alignment of verseAlignments) {
+        for (const targetWord of alignment.targetNgram) {
+          if (targetWord.word === tokenWord) {
+            targetWord.occurrences = occurrences
+          }
+        }
+      }
+      wordListWords.push(targetToken);
+    }
+  }
+}
+
+function handleDeletedWords(verseAlignments, targetTokens) {
+  for (const alignment of verseAlignments) {
+    let delete_ = [];
+    for (let i = 0, l = alignment.targetNgram.length; i < l; i++) {
+      let wordFound = false;
+      const targetWord = alignment.targetNgram[i];
+      const word = targetWord.text;
+      for (const targetToken of targetTokens) {
+        if (targetToken.text === word) {
+          if (targetWord.occurrence > targetToken.tokenOccurrences) {
+            delete_.push(i); // extra aligned word
+          } else if (targetWord.occurrences !== targetToken.tokenOccurrences) {
+            // fixup counts
+            targetWord.occurrences = targetToken.tokenOccurrences;
+          }
+          wordFound = true;
+          break;
+        }
+      }
+      if (!wordFound) {
+        delete_.push(i); // extra aligned word
+      }
+    }
+    while (delete_.length) {
+      const remove = delete_.pop();
+      alignment.targetNgram.splice(remove, 1);
+    }
+  }
+}
+
 /**
  * merge alignments into target verse
  * @return {string|null} target verse in USFM format
@@ -314,15 +366,8 @@ export function updateAlignmentsToTargetVerse(targetVerseObjects, newTargetVerse
   let targetVerseText = convertVerseDataToUSFM(targetVerseObjects);
   let { wordListWords, verseAlignments } = parseUsfmToWordAlignerData(targetVerseText, null);
   const targetTokens = getWordListFromVerseObjects(usfmVerseToJson(newTargetVerse));
-  for (const targetToken of targetTokens) {
-    const pos = wordListWords.findIndex(word => (
-      word.text === targetToken.text &&
-        word.tokenOccurrence === targetToken.tokenOccurrence
-    ))
-    if (pos < 0) {
-      wordListWords.push(targetToken);
-    }
-  }
+  handleAddedWordsInNewText(targetTokens, wordListWords, verseAlignments);
+  handleDeletedWords(verseAlignments, targetTokens);
   targetVerseText = addAlignmentsToVerseUSFM(wordListWords, verseAlignments, newTargetVerse);
   const alignedVerseObjects = usfmVerseToJson(targetVerseText)
   return {
