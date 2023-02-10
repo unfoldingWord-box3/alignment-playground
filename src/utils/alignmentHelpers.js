@@ -369,6 +369,10 @@ export function updateAlignmentsToTargetVerse(targetVerseObjects, newTargetVerse
   handleAddedWordsInNewText(targetTokens, wordListWords, verseAlignments);
   handleDeletedWords(verseAlignments, targetTokens);
   targetVerseText = addAlignmentsToVerseUSFM(wordListWords, verseAlignments, newTargetVerse);
+  if (targetVerseText === null) {
+    console.log(`updateAlignmentsToTargetVerse() - alignment FAILED for ${newTargetVerse}, removing all alignments`);
+    targetVerseText = newTargetVerse;
+  }
   const alignedVerseObjects = usfmVerseToJson(targetVerseText)
   return {
     targetVerseObjects: alignedVerseObjects,
